@@ -1,13 +1,12 @@
 package me.minefreak19.tryp.tool;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("SameParameterValue")
 public class ExprGenerator {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		defineAST("Expr", Arrays.asList(
 				"Binary   : Expr left, OpToken operator, Expr right",
 				"Grouping : Expr expression",
@@ -17,8 +16,7 @@ public class ExprGenerator {
 	}
 
 	private static void defineAST(String baseName,
-	                              List<String> types)
-			throws IOException {
+	                              List<String> types) {
 		PrintStream w = System.out;
 
 		w.println("package me.minefreak19.tryp.parse;");
@@ -47,8 +45,7 @@ public class ExprGenerator {
 
 	private static void defineVisitor(PrintStream w,
 	                                  String baseName,
-	                                  List<String> types)
-			throws IOException {
+	                                  List<String> types) {
 		w.println("\tpublic interface Visitor<R> {");
 
 		for (String type : types) {
@@ -60,8 +57,7 @@ public class ExprGenerator {
 		w.println("\t}");
 	}
 
-	private static void defineType(PrintStream w, String baseName, String className, String fieldList)
-			throws IOException {
+	private static void defineType(PrintStream w, String baseName, String className, String fieldList) {
 		w.println("\tpublic static class " + className + " extends " + baseName + " {");
 
 		String[] fields;
