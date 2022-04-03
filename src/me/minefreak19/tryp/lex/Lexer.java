@@ -1,5 +1,6 @@
 package me.minefreak19.tryp.lex;
 
+import me.minefreak19.tryp.CompilerError;
 import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.token.*;
 
@@ -24,8 +25,9 @@ public class Lexer {
 
 	public static boolean isNum(char ch) {
 		// TODO: this may need to account for different radixes in the future
-		return Character.isDigit(ch);
-//                       || ch == '_';
+		return Character.isDigit(ch)
+				       || ch == '.'
+				       || ch == '_';
 	}
 
 	public Lexer(String source, FileLocation loc) {
@@ -98,8 +100,6 @@ public class Lexer {
 	}
 
 	private Token lexNum() {
-		// TODO: no floats
-		// TODO: int parsing can be done at this stage
 		StringBuilder sb = new StringBuilder();
 		int i;
 		for (i = 0; i < source.length(); i++) {
@@ -107,13 +107,24 @@ public class Lexer {
 
 			if (!isNum(ch)) break;
 
-			sb.append(ch);
+			if (ch != '_') {
+				sb.append(ch);
+			}
 		}
 
 		this.source = this.source.substring(i);
 
 		var tokText = sb.toString();
-		return finish(new IntegerToken(this.loc, tokText));
+		try {
+			return finish(new NumberToken(this.loc, tokText));
+		} catch (NumberFormatException e) {
+			// this probably shouldn't happen normally because of the !isNum checks
+			//  still, it could happen if the number somehow can't be represented
+			//  in a double.
+			throw new CompilerError()
+					.error(this.loc, "Invalid number: `" + tokText + "`")
+					.report();
+		}
 	}
 
 	private Token lexWord() {

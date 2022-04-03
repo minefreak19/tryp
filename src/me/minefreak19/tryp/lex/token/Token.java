@@ -16,7 +16,7 @@ public abstract class Token {
 		if (tokType == StringToken.class) return "string literal";
 		else if (tokType == OpToken.class) return "operator";
 		else if (tokType == KeywordToken.class) return "keyword";
-		else if (tokType == IntegerToken.class) return "integer";
+		else if (tokType == NumberToken.class) return "integer";
 		else if (tokType == IdentifierToken.class) return "identifier";
 		else {
 			assert false : "unreachable";

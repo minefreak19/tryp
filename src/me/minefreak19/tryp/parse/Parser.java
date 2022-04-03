@@ -127,7 +127,7 @@ public final class Parser {
 						.report();
 			});
 
-			case IntegerToken intTok -> new Expr.Literal(intTok.getValue());
+			case NumberToken intTok -> new Expr.Literal(intTok.getValue());
 
 			case OpToken opTok -> {
 				if (opTok.getValue() == OPEN_PAREN) {
