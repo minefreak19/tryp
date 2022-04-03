@@ -1,4 +1,4 @@
-package me.minefreak19.tryp.parse;
+package me.minefreak19.tryp;
 
 import me.minefreak19.tryp.lex.token.Operator;
 import me.minefreak19.tryp.lex.token.Token;

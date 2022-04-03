@@ -1,5 +1,6 @@
 package me.minefreak19.tryp.parse;
 
+import me.minefreak19.tryp.Expr;
 import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.token.*;
 import me.minefreak19.tryp.util.CompilerError;

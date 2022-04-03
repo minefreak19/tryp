@@ -1,7 +1,6 @@
 package me.minefreak19.tryp;
 
 import me.minefreak19.tryp.lex.Lexer;
-import me.minefreak19.tryp.parse.Expr;
 import me.minefreak19.tryp.parse.Parser;
 import me.minefreak19.tryp.util.ASTPrinter;
 
