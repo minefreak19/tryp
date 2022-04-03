@@ -1,7 +1,6 @@
 package me.minefreak19.tryp;
 
 import me.minefreak19.tryp.lex.token.Operator;
-import me.minefreak19.tryp.lex.token.Token;
 
 public abstract class Expr {
 	public interface Visitor<R> {
@@ -15,7 +14,7 @@ public abstract class Expr {
 	}
 
 	public static class Binary extends Expr {
-		public Binary(Expr left, Token operator, Expr right) {
+		public Binary(Expr left, Operator operator, Expr right) {
 			this.left = left;
 			this.operator = operator;
 			this.right = right;
@@ -27,7 +26,7 @@ public abstract class Expr {
 		}
 
 		public final Expr left;
-		public final Token operator;
+		public final Operator operator;
 		public final Expr right;
 	}
 

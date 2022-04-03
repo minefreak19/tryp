@@ -10,7 +10,7 @@ public class ASTPrinter implements Expr.Visitor<String> {
 
 	@Override
 	public String visitBinaryExpr(Expr.Binary binary) {
-		return parenthesize(binary.operator.getText(), binary.left, binary.right);
+		return parenthesize(binary.operator.text, binary.left, binary.right);
 	}
 
 	@Override
