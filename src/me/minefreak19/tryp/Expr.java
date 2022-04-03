@@ -1,6 +1,6 @@
 package me.minefreak19.tryp;
 
-import me.minefreak19.tryp.lex.token.Operator;
+import me.minefreak19.tryp.lex.token.OpToken;
 
 public abstract class Expr {
 	public interface Visitor<R> {
@@ -14,7 +14,7 @@ public abstract class Expr {
 	}
 
 	public static class Binary extends Expr {
-		public Binary(Expr left, Operator operator, Expr right) {
+		public Binary(Expr left, OpToken operator, Expr right) {
 			this.left = left;
 			this.operator = operator;
 			this.right = right;
@@ -26,7 +26,7 @@ public abstract class Expr {
 		}
 
 		public final Expr left;
-		public final Operator operator;
+		public final OpToken operator;
 		public final Expr right;
 	}
 
@@ -57,7 +57,7 @@ public abstract class Expr {
 	}
 
 	public static class Unary extends Expr {
-		public Unary(Operator operator, Expr right) {
+		public Unary(OpToken operator, Expr right) {
 			this.operator = operator;
 			this.right = right;
 		}
@@ -67,7 +67,7 @@ public abstract class Expr {
 			return visitor.visitUnaryExpr(this);
 		}
 
-		public final Operator operator;
+		public final OpToken operator;
 		public final Expr right;
 	}
 

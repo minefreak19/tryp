@@ -56,7 +56,7 @@ public final class Parser {
 		while (match(COMMA)) {
 			var opTok = (OpToken) previous();
 			Expr right = equality();
-			expr = new Expr.Binary(expr, opTok.getValue(), right);
+			expr = new Expr.Binary(expr, opTok, right);
 		}
 
 		return expr;
@@ -67,7 +67,7 @@ public final class Parser {
 		while (match(BANG_EQUAL, EQUAL_EQUAL)) {
 			var opTok = (OpToken) previous();
 			Expr right = comparison();
-			expr = new Expr.Binary(expr, opTok.getValue(), right);
+			expr = new Expr.Binary(expr, opTok, right);
 		}
 
 		return expr;
@@ -78,7 +78,7 @@ public final class Parser {
 		while (match(GREATER_THAN, LESS_THAN, GREATER_EQUAL, LESS_EQUAL)) {
 			var opTok = (OpToken) previous();
 			Expr right = term();
-			expr = new Expr.Binary(expr, opTok.getValue(), right);
+			expr = new Expr.Binary(expr, opTok, right);
 		}
 
 		return expr;
@@ -89,7 +89,7 @@ public final class Parser {
 		while (match(MINUS, PLUS)) {
 			var opTok = (OpToken) previous();
 			Expr right = factor();
-			expr = new Expr.Binary(expr, opTok.getValue(), right);
+			expr = new Expr.Binary(expr, opTok, right);
 		}
 
 		return expr;
@@ -100,7 +100,7 @@ public final class Parser {
 		while (match(SLASH, STAR)) {
 			var opTok = (OpToken) previous();
 			Expr right = unary();
-			expr = new Expr.Binary(expr, opTok.getValue(), right);
+			expr = new Expr.Binary(expr, opTok, right);
 		}
 
 		return expr;
@@ -109,7 +109,7 @@ public final class Parser {
 	private Expr unary() {
 		if (match(BANG, MINUS)) {
 			var opTok = (OpToken) previous();
-			return new Expr.Unary(opTok.getValue(), unary());
+			return new Expr.Unary(opTok, unary());
 		}
 
 		return primary();

@@ -9,10 +9,10 @@ import java.util.List;
 public class ExprGenerator {
 	public static void main(String[] args) throws Exception {
 		defineAST("Expr", Arrays.asList(
-				"Binary   : Expr left, Token operator, Expr right",
+				"Binary   : Expr left, OpToken operator, Expr right",
 				"Grouping : Expr expression",
 				"Literal  : Object value",
-				"Unary    : Operator operator, Expr right"
+				"Unary    : OpToken operator, Expr right"
 		));
 	}
 
