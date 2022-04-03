@@ -1,4 +1,5 @@
-expression     → equality ;
+expression     → compound ;
+compound       → equality ( (",") equality )* ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;

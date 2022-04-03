@@ -47,7 +47,18 @@ public final class Parser {
 	}
 
 	private Expr expression() {
-		return equality();
+		return compound();
+	}
+
+	private Expr compound() {
+		Expr expr = equality();
+		while (match(COMMA)) {
+			var opTok = (OpToken) previous();
+			Expr right = equality();
+			expr = new Expr.Binary(expr, opTok, right);
+		}
+
+		return expr;
 	}
 
 	private Expr equality() {
