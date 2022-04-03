@@ -1,8 +1,8 @@
 package me.minefreak19.tryp.parse;
 
-import me.minefreak19.tryp.CompilerError;
 import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.token.*;
+import me.minefreak19.tryp.util.CompilerError;
 
 import java.util.List;
 import java.util.Objects;

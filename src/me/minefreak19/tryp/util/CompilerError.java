@@ -1,5 +1,6 @@
-package me.minefreak19.tryp;
+package me.minefreak19.tryp.util;
 
+import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.FileLocation;
 import me.minefreak19.tryp.lex.token.Token;
 
