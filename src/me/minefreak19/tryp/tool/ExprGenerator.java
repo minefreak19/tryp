@@ -1,22 +1,14 @@
 package me.minefreak19.tryp.tool;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("SameParameterValue")
 public class ExprGenerator {
 	public static void main(String[] args) throws Exception {
-		if (args.length != 1) {
-			System.err.println("Usage: Main <outDir>");
-			System.exit(64);
-		}
-
-		String outDir = args[0];
-
-		defineAST(outDir, "Expr", Arrays.asList(
+		defineAST("Expr", Arrays.asList(
 				"Binary   : Expr left, Token operator, Expr right",
 				"Grouping : Expr expression",
 				"Literal  : Object value",
@@ -24,12 +16,10 @@ public class ExprGenerator {
 		));
 	}
 
-	private static void defineAST(String outDir,
-	                              String baseName,
+	private static void defineAST(String baseName,
 	                              List<String> types)
 			throws IOException {
-		String path = outDir + "/" + baseName + ".java";
-		PrintWriter w = new PrintWriter(path, StandardCharsets.UTF_8);
+		PrintStream w = System.out;
 
 		w.println("package me.minefreak19.tryp.parse;");
 		w.println();
@@ -53,7 +43,7 @@ public class ExprGenerator {
 		w.close();
 	}
 
-	private static void defineVisitor(PrintWriter w,
+	private static void defineVisitor(PrintStream w,
 	                                  String baseName,
 	                                  List<String> types)
 			throws IOException {
@@ -68,7 +58,7 @@ public class ExprGenerator {
 		w.println("\t}");
 	}
 
-	private static void defineType(PrintWriter w, String baseName, String className, String fieldList)
+	private static void defineType(PrintStream w, String baseName, String className, String fieldList)
 			throws IOException {
 		w.println("\tpublic static class " + className + " extends " + baseName + " {");
 
