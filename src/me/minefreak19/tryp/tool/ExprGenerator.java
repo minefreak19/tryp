@@ -23,6 +23,8 @@ public class ExprGenerator {
 
 		w.println("package me.minefreak19.tryp.parse;");
 		w.println();
+		w.println("import me.minefreak19.tryp.lex.token.*;");
+		w.println();
 		w.println("import java.util.*;");
 		w.println();
 		w.println("public abstract class " + baseName + " {");
