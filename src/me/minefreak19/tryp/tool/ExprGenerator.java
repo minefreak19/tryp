@@ -7,11 +7,16 @@ import java.util.List;
 @SuppressWarnings("SameParameterValue")
 public class ExprGenerator {
 	public static void main(String[] args) {
-		defineAST("Expr", Arrays.asList(
-				"Binary   : Expr left, OpToken operator, Expr right",
-				"Grouping : Expr expression",
-				"Literal  : Object value",
-				"Unary    : OpToken operator, Expr right"
+//		defineAST("Expr", Arrays.asList(
+//				"Binary   : Expr left, OpToken operator, Expr right",
+//				"Grouping : Expr expression",
+//				"Literal  : Object value",
+//				"Unary    : OpToken operator, Expr right"
+//		));
+
+		defineAST("Stmt", Arrays.asList(
+				"Expression : Expr expr",
+				"Print      : Expr expr"
 		));
 	}
 
