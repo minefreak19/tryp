@@ -18,9 +18,9 @@ public abstract class Token {
 		else if (tokType == KeywordToken.class) return "keyword";
 		else if (tokType == NumberToken.class) return "integer";
 		else if (tokType == IdentifierToken.class) return "identifier";
+		else if (tokType == EOFToken.class) return "end of source";
 		else {
-			assert false : "unreachable";
-			return null;
+			throw new AssertionError("unreachable");
 		}
 	}
 

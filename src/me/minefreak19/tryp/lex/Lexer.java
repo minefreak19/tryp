@@ -239,7 +239,7 @@ public class Lexer {
 			}
 		}
 
-		ret.add(new EOFToken());
+		ret.add(new EOFToken(this.loc));
 
 		return ret;
 	}
