@@ -10,4 +10,7 @@ public class StringToken extends Token {
 		this.value = value;
 	}
 
+	public String getValue() {
+		return value;
+	}
 }
