@@ -1,13 +1,15 @@
 package me.minefreak19.tryp.parse;
 
-import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.token.*;
 import me.minefreak19.tryp.tree.Expr;
+import me.minefreak19.tryp.tree.Stmt;
 import me.minefreak19.tryp.util.CompilerError;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static me.minefreak19.tryp.lex.token.Keyword.PRINT;
 import static me.minefreak19.tryp.lex.token.Operator.*;
 
 @SuppressWarnings("SameParameterValue")
@@ -39,12 +41,33 @@ public final class Parser {
 		}
 	}
 
-	public Expr parse() {
-		try {
-			return expression();
-		} catch (SyntaxException ignored) {
-			return null;
+	public List<Stmt> parse() {
+		var statements = new ArrayList<Stmt>();
+		while (!atEnd()) {
+			statements.add(statement());
 		}
+
+		return statements;
+	}
+
+	private Stmt statement() {
+		if (match(PRINT)) return printStatement();
+
+		return expressionStatement();
+	}
+
+	private Stmt printStatement() {
+		assert previous() instanceof KeywordToken kwTok && kwTok.getValue() == PRINT;
+
+		Expr value = expression();
+		expect(SEMICOLON);
+		return new Stmt.Print(value);
+	}
+
+	private Stmt expressionStatement() {
+		Expr value = expression();
+		expect(SEMICOLON);
+		return new Stmt.Expression(value);
 	}
 
 	private Expr expression() {
@@ -184,9 +207,27 @@ public final class Parser {
 				       && opTok.getValue() == op;
 	}
 
+	private boolean check(Keyword kw) {
+		if (atEnd()) return false;
+
+		return peek() instanceof KeywordToken kwTOk
+				       && kwTOk.getValue() == kw;
+	}
+
 	private boolean match(Operator... ops) {
 		for (var op : ops) {
 			if (check(op)) {
+				advance();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean match(Keyword... kws) {
+		for (var kw : kws) {
+			if (check(kw)) {
 				advance();
 				return true;
 			}

@@ -2,8 +2,13 @@ package me.minefreak19.tryp.eval;
 
 import me.minefreak19.tryp.lex.token.OpToken;
 import me.minefreak19.tryp.tree.Expr;
+import me.minefreak19.tryp.tree.Stmt;
 
-public class Interpreter implements Expr.Visitor<Object> {
+import java.util.List;
+
+public class Interpreter
+		implements Expr.Visitor<Object>,
+				           Stmt.Visitor<Void> {
 	private boolean hadError = false;
 
 	public static boolean isTruthy(Object o) {
@@ -51,14 +56,32 @@ public class Interpreter implements Expr.Visitor<Object> {
 		};
 	}
 
-	public void interpret(Expr expr) {
+	/**
+	 * Version of {@link #stringify(Object)} that doesn't stringify strings.
+	 *
+	 * @param value The value to stringify.
+	 *
+	 * @return {@code value} if {@code value instanceof String}, else {@code stringify(value)}
+	 */
+	public static String toString(Object value) {
+		if (value instanceof String s) return s;
+
+		return stringify(value);
+	}
+
+	public void interpret(List<Stmt> program) {
 		try {
-			Object value = evaluate(expr);
-			System.out.println(stringify(value));
+			for (var stmt : program) {
+				execute(stmt);
+			}
 		} catch (RuntimeError err) {
 			System.err.println(err.getLocalizedMessage());
 			hadError = true;
 		}
+	}
+
+	private void execute(Stmt stmt) {
+		stmt.accept(this);
 	}
 
 	public Object evaluate(Expr expr) {
@@ -154,6 +177,19 @@ public class Interpreter implements Expr.Visitor<Object> {
 			default -> throw new AssertionError("unreachable");
 
 		};
+	}
+
+	@Override
+	public Void visitExpressionStmt(Stmt.Expression expression) {
+		evaluate(expression.expr);
+		return null;
+	}
+
+	@Override
+	public Void visitPrintStmt(Stmt.Print print) {
+		Object value = evaluate(print.expr);
+		System.out.println(toString(value));
+		return null;
 	}
 
 	public boolean hadError() {
