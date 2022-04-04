@@ -6,12 +6,12 @@ import java.util.*;
 
 public abstract class Expr {
 	public interface Visitor<R> {
-		R visitAssignExpr(Assign assign);
-		R visitBinaryExpr(Binary binary);
-		R visitGroupingExpr(Grouping grouping);
-		R visitLiteralExpr(Literal literal);
-		R visitUnaryExpr(Unary unary);
-		R visitVariableExpr(Variable variable);
+		R visitAssignExpr(Assign expr);
+		R visitBinaryExpr(Binary expr);
+		R visitGroupingExpr(Grouping expr);
+		R visitLiteralExpr(Literal expr);
+		R visitUnaryExpr(Unary expr);
+		R visitVariableExpr(Variable expr);
 	}
 
 	public static class Assign extends Expr {

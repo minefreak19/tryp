@@ -219,6 +219,16 @@ public class Interpreter
 	}
 
 	@Override
+	public Void visitIfStmt(Stmt.If ifStmt) {
+		if (isTruthy(evaluate(ifStmt.condition))) {
+			execute(ifStmt.thenBranch);
+		} else if (ifStmt.elseBranch != null) {
+			execute(ifStmt.elseBranch);
+		}
+		return null;
+	}
+
+	@Override
 	public Void visitPrintStmt(Stmt.Print print) {
 		Object value = evaluate(print.expr);
 		System.out.println(toString(value));

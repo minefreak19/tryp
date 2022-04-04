@@ -7,11 +7,14 @@ varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
                | printStmt
-               | block ;
+               | block
+               | ifStmt ;
 
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
 block          → "{" declaration* "}" ;
+ifStmt         → "if" "(" expression ")" statement
+                 ( "else" statement )? ;
 
 expression     → compound ;
 compound       → assignment ( (",") assignment )* ;

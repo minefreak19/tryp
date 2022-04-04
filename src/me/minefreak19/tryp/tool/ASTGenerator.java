@@ -22,6 +22,8 @@ public class ASTGenerator {
 		defineAST(outDir, "Stmt", Arrays.asList(
 				"Block      : List<Stmt> statements",
 				"Expression : Expr expr",
+				"If         : Expr condition, Stmt thenBranch," +
+						" Stmt elseBranch",
 				"Print      : Expr expr",
 				"Var        : Token name, Expr initializer"
 		));

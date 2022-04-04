@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static me.minefreak19.tryp.lex.token.Keyword.PRINT;
-import static me.minefreak19.tryp.lex.token.Keyword.VAR;
+import static me.minefreak19.tryp.lex.token.Keyword.*;
 import static me.minefreak19.tryp.lex.token.Operator.*;
 
 @SuppressWarnings("SameParameterValue")
@@ -81,6 +80,7 @@ public final class Parser {
 	private Stmt statement() {
 		if (match(PRINT)) return printStatement();
 		if (match(OPEN_CURLY)) return blockStatement();
+		if (match(IF)) return ifStatement();
 
 		return expressionStatement();
 	}
@@ -107,6 +107,23 @@ public final class Parser {
 		expect(CLOSE_CURLY);
 
 		return new Stmt.Block(statements);
+	}
+
+	private Stmt ifStatement() {
+		expect(OPEN_PAREN);
+		Expr condition = expression();
+		expect(CLOSE_PAREN);
+
+		Stmt thenBranch = statement();
+
+		Stmt elseBranch = null;
+		// NOTE: `else` binds to the nearest `if`, because
+		//  we check for it here
+		if (match(ELSE)) {
+			elseBranch = statement();
+		}
+
+		return new Stmt.If(condition, thenBranch, elseBranch);
 	}
 
 	private Stmt expressionStatement() {
