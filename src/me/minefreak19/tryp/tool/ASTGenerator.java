@@ -1,30 +1,32 @@
 package me.minefreak19.tryp.tool;
 
-import java.io.PrintStream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("SameParameterValue")
 public class ASTGenerator {
-	public static void main(String[] args) {
-//		defineAST("Expr", Arrays.asList(
-//				"Binary   : Expr left, OpToken operator, Expr right",
-//				"Grouping : Expr expression",
-//				"Literal  : Object value",
-//				"Unary    : OpToken operator, Expr right"
-//		));
+	public static void main(String[] args) throws FileNotFoundException {
+		final String outDir = "src/me/minefreak19/tryp/tree";
+		defineAST(outDir, "Expr", Arrays.asList(
+				"Binary   : Expr left, OpToken operator, Expr right",
+				"Grouping : Expr expression",
+				"Literal  : Object value",
+				"Unary    : OpToken operator, Expr right"
+		));
 
-		defineAST("Stmt", Arrays.asList(
+		defineAST(outDir, "Stmt", Arrays.asList(
 				"Expression : Expr expr",
 				"Print      : Expr expr"
 		));
 	}
 
-	private static void defineAST(String baseName,
-	                              List<String> types) {
-		PrintStream w = System.out;
+	private static void defineAST(String outDir, String baseName,
+	                              List<String> types) throws FileNotFoundException {
+		PrintWriter w = new PrintWriter(outDir + "/" + baseName + ".java");
 
-		w.println("package me.minefreak19.tryp.parse;");
+		w.println("package me.minefreak19.tryp.tree;");
 		w.println();
 		w.println("import me.minefreak19.tryp.lex.token.*;");
 		w.println();
@@ -48,7 +50,7 @@ public class ASTGenerator {
 		w.close();
 	}
 
-	private static void defineVisitor(PrintStream w,
+	private static void defineVisitor(PrintWriter w,
 	                                  String baseName,
 	                                  List<String> types) {
 		w.println("\tpublic interface Visitor<R> {");
@@ -62,7 +64,7 @@ public class ASTGenerator {
 		w.println("\t}");
 	}
 
-	private static void defineType(PrintStream w, String baseName, String className, String fieldList) {
+	private static void defineType(PrintWriter w, String baseName, String className, String fieldList) {
 		w.println("\tpublic static class " + className + " extends " + baseName + " {");
 
 		String[] fields;
