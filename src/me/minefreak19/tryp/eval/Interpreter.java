@@ -11,7 +11,7 @@ public class Interpreter
 				           Stmt.Visitor<Void> {
 	private boolean hadError = false;
 
-	private final Environment environment = new Environment();
+	private Environment environment = new Environment();
 
 	public static boolean isTruthy(Object o) {
 		return switch (o) {
@@ -84,6 +84,19 @@ public class Interpreter
 
 	private void execute(Stmt stmt) {
 		stmt.accept(this);
+	}
+
+	private void executeBlock(List<Stmt> statements, Environment environment) {
+		Environment previous = this.environment;
+		try {
+			this.environment = environment;
+
+			for (var stmt : statements) {
+				execute(stmt);
+			}
+		} finally {
+			this.environment = previous;
+		}
 	}
 
 	public Object evaluate(Expr expr) {
@@ -191,6 +204,12 @@ public class Interpreter
 	@Override
 	public Object visitVariableExpr(Expr.Variable variable) {
 		return environment.get(variable.name);
+	}
+
+	@Override
+	public Void visitBlockStmt(Stmt.Block block) {
+		executeBlock(block.statements, new Environment(environment));
+		return null;
 	}
 
 	@Override

@@ -80,6 +80,7 @@ public final class Parser {
 
 	private Stmt statement() {
 		if (match(PRINT)) return printStatement();
+		if (match(OPEN_CURLY)) return blockStatement();
 
 		return expressionStatement();
 	}
@@ -90,6 +91,22 @@ public final class Parser {
 		Expr value = expression();
 		expect(SEMICOLON);
 		return new Stmt.Print(value);
+	}
+
+	/**
+	 * Expects the opening curly to be already consumed.
+	 * Consumes the closing curly.
+	 */
+	private Stmt blockStatement() {
+		var statements = new ArrayList<Stmt>();
+
+		while (!check(CLOSE_CURLY) && !atEnd()) {
+			statements.add(declaration());
+		}
+
+		expect(CLOSE_CURLY);
+
+		return new Stmt.Block(statements);
 	}
 
 	private Stmt expressionStatement() {

@@ -20,6 +20,7 @@ public class ASTGenerator {
 		));
 
 		defineAST(outDir, "Stmt", Arrays.asList(
+				"Block      : List<Stmt> statements",
 				"Expression : Expr expr",
 				"Print      : Expr expr",
 				"Var        : Token name, Expr initializer"
