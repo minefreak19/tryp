@@ -14,6 +14,7 @@ public enum Keyword {
 	WHILE("while"),
 	RETURN("return"),
 	FOR("for"),
+	PRINT("print"),
 	;
 
 	static Map<String, Keyword> byText;
