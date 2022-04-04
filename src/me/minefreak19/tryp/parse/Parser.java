@@ -103,11 +103,31 @@ public final class Parser {
 	}
 
 	private Expr compound() {
-		Expr expr = equality();
+		Expr expr = assignment();
 		while (match(COMMA)) {
 			var opTok = (OpToken) previous();
-			Expr right = equality();
+			Expr right = assignment();
 			expr = new Expr.Binary(expr, opTok, right);
+		}
+
+		return expr;
+	}
+
+	// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
+	private Expr assignment() {
+		// delegate to equality() if there's no `<-` after that
+		Expr expr = equality();
+
+		if (match(LEFT_ARROW)) {
+			Token arrow = previous();
+			Expr value = assignment();
+			if (expr instanceof Expr.Variable varExpr) {
+				return new Expr.Assign(varExpr.name, value);
+			}
+
+			throw new CompilerError()
+					.error(arrow.getLoc(), "Invalid target for assignment")
+					.report();
 		}
 
 		return expr;

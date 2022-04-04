@@ -6,11 +6,27 @@ import java.util.*;
 
 public abstract class Expr {
 	public interface Visitor<R> {
+		R visitAssignExpr(Assign assign);
 		R visitBinaryExpr(Binary binary);
 		R visitGroupingExpr(Grouping grouping);
 		R visitLiteralExpr(Literal literal);
 		R visitUnaryExpr(Unary unary);
 		R visitVariableExpr(Variable variable);
+	}
+
+	public static class Assign extends Expr {
+		public Assign(Token name, Expr value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitAssignExpr(this);
+		}
+
+		public final Token name;
+		public final Expr value;
 	}
 
 	public static class Binary extends Expr {

@@ -9,6 +9,11 @@ public class ASTPrinter implements Expr.Visitor<String> {
 	}
 
 	@Override
+	public String visitAssignExpr(Expr.Assign assign) {
+		return parenthesize("= " + assign.name.getText(), assign.value);
+	}
+
+	@Override
 	public String visitBinaryExpr(Expr.Binary binary) {
 		return parenthesize(binary.operator.getText(), binary.left, binary.right);
 	}

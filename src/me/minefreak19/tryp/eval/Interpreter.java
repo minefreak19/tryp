@@ -91,6 +91,13 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitAssignExpr(Expr.Assign assign) {
+		Object value = evaluate(assign.value);
+		environment.assign(assign.name, value);
+		return value;
+	}
+
+	@Override
 	public Object visitBinaryExpr(Expr.Binary binary) {
 		Object left = evaluate(binary.left);
 		Object right = evaluate(binary.right);

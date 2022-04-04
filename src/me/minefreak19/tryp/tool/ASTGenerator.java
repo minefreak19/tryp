@@ -10,6 +10,8 @@ public class ASTGenerator {
 	public static void main(String[] args) throws FileNotFoundException {
 		final String outDir = "src/me/minefreak19/tryp/tree";
 		defineAST(outDir, "Expr", Arrays.asList(
+				// This gets a separate AST node, because its lhs can't be any old expression.
+				"Assign   : Token name, Expr value",
 				"Binary   : Expr left, OpToken operator, Expr right",
 				"Grouping : Expr expression",
 				"Literal  : Object value",

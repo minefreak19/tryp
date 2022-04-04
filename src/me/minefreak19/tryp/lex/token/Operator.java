@@ -7,6 +7,7 @@ public enum Operator {
 	// NOTE: These must be declared in decreasing order of
 	//  string length, so that the longer operators are checked
 	//  first during lexing. (i.e. check >= before >)
+	LEFT_ARROW("<-"),
 	GREATER_EQUAL(">="),
 	LESS_EQUAL("<="),
 	EQUAL_EQUAL("=="),
@@ -25,7 +26,6 @@ public enum Operator {
 	CLOSE_PAREN(")"),
 	SEMICOLON(";"),
 	COMMA(","),
-
 	;
 
 	private static final Map<String, Operator> byText;
