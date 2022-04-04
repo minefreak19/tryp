@@ -1,7 +1,7 @@
 package me.minefreak19.tryp.eval;
 
-import me.minefreak19.tryp.Expr;
 import me.minefreak19.tryp.lex.token.OpToken;
+import me.minefreak19.tryp.tree.Expr;
 
 public class Interpreter implements Expr.Visitor<Object> {
 	private boolean hadError = false;

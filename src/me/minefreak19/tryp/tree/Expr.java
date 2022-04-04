@@ -1,4 +1,4 @@
-package me.minefreak19.tryp;
+package me.minefreak19.tryp.tree;
 
 import me.minefreak19.tryp.lex.token.OpToken;
 

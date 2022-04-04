@@ -3,6 +3,7 @@ package me.minefreak19.tryp;
 import me.minefreak19.tryp.eval.Interpreter;
 import me.minefreak19.tryp.lex.Lexer;
 import me.minefreak19.tryp.parse.Parser;
+import me.minefreak19.tryp.tree.Expr;
 
 import java.io.File;
 import java.io.IOException;

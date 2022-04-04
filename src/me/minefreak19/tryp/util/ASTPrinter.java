@@ -1,6 +1,6 @@
 package me.minefreak19.tryp.util;
 
-import me.minefreak19.tryp.Expr;
+import me.minefreak19.tryp.tree.Expr;
 
 public class ASTPrinter implements Expr.Visitor<String> {
 
