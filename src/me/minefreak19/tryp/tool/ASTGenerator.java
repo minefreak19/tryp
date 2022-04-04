@@ -63,7 +63,7 @@ public class ASTGenerator {
 		for (String type : types) {
 			String typeName = type.split(":")[0].trim();
 			w.println("\t\tR visit" + typeName + baseName
-					          + "(" + typeName + " " + typeName.toLowerCase() + ");");
+					          + "(" + typeName + " " + baseName.toLowerCase() + ");");
 		}
 
 		w.println("\t}");
