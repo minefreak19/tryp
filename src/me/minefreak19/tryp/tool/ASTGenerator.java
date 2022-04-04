@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("SameParameterValue")
-public class ExprGenerator {
+public class ASTGenerator {
 	public static void main(String[] args) {
 //		defineAST("Expr", Arrays.asList(
 //				"Binary   : Expr left, OpToken operator, Expr right",
