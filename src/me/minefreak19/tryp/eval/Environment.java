@@ -6,7 +6,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Environment {
+	private final Environment parent;
 	private final Map<String, Object> values = new HashMap<>();
+
+	public Environment() {
+		this.parent = null;
+	}
+
+	public Environment(Environment parent) {
+		this.parent = parent;
+	}
 
 	public void define(String name, Object value) {
 		// Maybe a redefinition check would be something to think about.
@@ -18,6 +27,10 @@ public class Environment {
 			return values.get(name.getText());
 		}
 
+		if (this.parent != null) {
+			return this.parent.get(name);
+		}
+
 		throw new RuntimeError(name, "Undefined variable `" + name.getText() + "`.");
 	}
 
@@ -27,7 +40,15 @@ public class Environment {
 			return;
 		}
 
+		if (this.parent != null) {
+			this.parent.assign(name, value);
+			return;
+		}
+
 		throw new RuntimeError(name, "Undefined variable `" + name.getText() + "`.");
 	}
 
+	public Environment getParent() {
+		return parent;
+	}
 }
