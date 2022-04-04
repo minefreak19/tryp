@@ -1,8 +1,8 @@
 package me.minefreak19.tryp;
 
+import me.minefreak19.tryp.eval.Interpreter;
 import me.minefreak19.tryp.lex.Lexer;
 import me.minefreak19.tryp.parse.Parser;
-import me.minefreak19.tryp.util.ASTPrinter;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +21,8 @@ public class Main {
 			return;
 		}
 
-		System.out.println(new ASTPrinter().print(expr));
+//		System.out.println(new ASTPrinter().print(expr));
+
+		new Interpreter().interpret(expr);
 	}
 }
