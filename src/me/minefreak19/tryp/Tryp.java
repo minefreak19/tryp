@@ -58,8 +58,11 @@ public class Tryp {
 	private void run(String source, String fileName) {
 		Lexer lexer = new Lexer(source, new FileLocation(fileName, 1, 1));
 		var tokens = lexer.tokens();
+
 		Parser parser = new Parser(tokens);
 		var program = parser.parse();
+		if (parser.hadError()) return;
+
 		interpreter.interpret(program);
 	}
 }

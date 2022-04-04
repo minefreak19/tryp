@@ -18,6 +18,7 @@ import static me.minefreak19.tryp.lex.token.Operator.*;
 public final class Parser {
 	private final List<Token> tokens;
 	private int current;
+	private boolean hadError = false;
 
 	public Parser(List<Token> tokens) {
 		this.tokens = tokens;
@@ -58,11 +59,9 @@ public final class Parser {
 
 			return statement();
 		} catch (SyntaxException exception) {
+			hadError = true;
 			sync();
-			if (!atEnd())
-				return declaration();
-
-			throw exception;
+			return null;
 		}
 	}
 
@@ -303,6 +302,10 @@ public final class Parser {
 	public String toString() {
 		return "Parser[" +
 				       "tokens=" + tokens + ']';
+	}
+
+	public boolean hadError() {
+		return this.hadError;
 	}
 
 }
