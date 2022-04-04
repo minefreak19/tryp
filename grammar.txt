@@ -19,7 +19,11 @@ ifStmt         → "if" "(" expression ")" statement
 expression     → compound ;
 compound       → assignment ( (",") assignment )* ;
 assignment     → IDENTIFIER "<-" assignment
-               | equality ;
+               | logical_or ;
+
+logical_or     → logical_and ( "||" logical_and )* ;
+logical_and    → equality ( "&&" equality )* ;
+
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;

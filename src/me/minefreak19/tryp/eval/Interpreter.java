@@ -189,6 +189,18 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitLogicalExpr(Expr.Logical expr) {
+		Object left = evaluate(expr.left);
+
+		return switch (expr.operator.getValue()) {
+			case AND_AND -> isTruthy(left) ? evaluate(expr.right) : left;
+			case OR_OR -> !isTruthy(left) ? evaluate(expr.right) : left;
+
+			default -> throw new AssertionError("unreachable");
+		};
+	}
+
+	@Override
 	public Object visitUnaryExpr(Expr.Unary unary) {
 		Object right = evaluate(unary.right);
 		return switch (unary.operator.getValue()) {

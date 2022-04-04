@@ -12,6 +12,8 @@ public enum Operator {
 	LESS_EQUAL("<="),
 	EQUAL_EQUAL("=="),
 	BANG_EQUAL("!="),
+	AND_AND("&&"),
+	OR_OR("||"),
 	GREATER_THAN(">"),
 	LESS_THAN("<"),
 	EQUAL("="),

@@ -150,7 +150,7 @@ public final class Parser {
 	// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
 	private Expr assignment() {
 		// delegate to equality() if there's no `<-` after that
-		Expr expr = equality();
+		Expr expr = logicalOr();
 
 		if (match(LEFT_ARROW)) {
 			Token arrow = previous();
@@ -165,6 +165,28 @@ public final class Parser {
 		}
 
 		return expr;
+	}
+
+	private Expr logicalOr() {
+		Expr left = logicalAnd();
+		while (match(OR_OR)) {
+			var opTok = (OpToken) previous();
+			Expr right = logicalAnd();
+			left = new Expr.Logical(left, opTok, right);
+		}
+
+		return left;
+	}
+
+	private Expr logicalAnd() {
+		Expr left = equality();
+		while (match(AND_AND)) {
+			var opTok = (OpToken) previous();
+			Expr right = equality();
+			left = new Expr.Logical(left, opTok, right);
+		}
+
+		return left;
 	}
 
 	private Expr equality() {
