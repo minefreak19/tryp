@@ -196,6 +196,7 @@ public final class Parser {
 	}
 
 	private Token advance() {
+		// TODO: handle this case properly (by throwing an error)
 		if (!atEnd()) current++;
 		return previous();
 	}
