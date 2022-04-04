@@ -1,5 +1,6 @@
 package me.minefreak19.tryp.parse;
 
+import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.token.*;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static me.minefreak19.tryp.lex.token.Keyword.PRINT;
+import static me.minefreak19.tryp.lex.token.Keyword.VAR;
 import static me.minefreak19.tryp.lex.token.Operator.*;
 
 @SuppressWarnings("SameParameterValue")
@@ -44,10 +46,37 @@ public final class Parser {
 	public List<Stmt> parse() {
 		var statements = new ArrayList<Stmt>();
 		while (!atEnd()) {
-			statements.add(statement());
+			statements.add(declaration());
 		}
 
 		return statements;
+	}
+
+	private Stmt declaration() {
+		try {
+			if (match(VAR)) return varDecl();
+
+			return statement();
+		} catch (SyntaxException exception) {
+			sync();
+			if (!atEnd())
+				return declaration();
+
+			throw exception;
+		}
+	}
+
+	private Stmt varDecl() {
+		Token varName = expect(IdentifierToken.class);
+
+		Expr initializer = null;
+		if (match(EQUAL)) {
+			initializer = expression();
+		}
+
+		expect(SEMICOLON);
+
+		return new Stmt.Var(varName, initializer);
 	}
 
 	private Stmt statement() {
@@ -166,6 +195,8 @@ public final class Parser {
 				}
 			}
 
+			case IdentifierToken iTok -> new Expr.Variable(iTok);
+
 			default -> throw new CompilerError()
 					.badToken(token, "Expected expression")
 					.report();
@@ -180,6 +211,16 @@ public final class Parser {
 
 		throw new CompilerError()
 				.expectedButFound(op.text, peek())
+				.report();
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends Token> T expect(Class<T> tokenType) {
+		if (check(tokenType))
+			return (T) advance();
+
+		throw new CompilerError()
+				.expectedButFound(Token.humanTokType(tokenType), peek())
 				.report();
 	}
 
@@ -213,6 +254,10 @@ public final class Parser {
 
 		return peek() instanceof KeywordToken kwTOk
 				       && kwTOk.getValue() == kw;
+	}
+
+	private <T extends Token> boolean check(Class<T> tokenType) {
+		return peek().getClass() == tokenType;
 	}
 
 	private boolean match(Operator... ops) {

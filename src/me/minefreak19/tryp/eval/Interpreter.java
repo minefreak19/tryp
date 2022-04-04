@@ -11,6 +11,8 @@ public class Interpreter
 				           Stmt.Visitor<Void> {
 	private boolean hadError = false;
 
+	private final Environment environment = new Environment();
+
 	public static boolean isTruthy(Object o) {
 		return switch (o) {
 			case null -> false;
@@ -180,6 +182,11 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitVariableExpr(Expr.Variable variable) {
+		return environment.get(variable.name);
+	}
+
+	@Override
 	public Void visitExpressionStmt(Stmt.Expression expression) {
 		evaluate(expression.expr);
 		return null;
@@ -189,6 +196,17 @@ public class Interpreter
 	public Void visitPrintStmt(Stmt.Print print) {
 		Object value = evaluate(print.expr);
 		System.out.println(toString(value));
+		return null;
+	}
+
+	@Override
+	public Void visitVarStmt(Stmt.Var var) {
+		Object value = null;
+		if (var.initializer != null) {
+			value = evaluate(var.initializer);
+		}
+
+		environment.define(var.name.getText(), value);
 		return null;
 	}
 

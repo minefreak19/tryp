@@ -28,6 +28,11 @@ public class ASTPrinter implements Expr.Visitor<String> {
 		return parenthesize(unary.operator.getText(), unary.right);
 	}
 
+	@Override
+	public String visitVariableExpr(Expr.Variable variable) {
+		return parenthesize("var", new Expr.Literal(variable.name.getText()));
+	}
+
 	private String parenthesize(String name, Expr... exprs) {
 		var sb = new StringBuilder();
 

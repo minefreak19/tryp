@@ -13,12 +13,14 @@ public class ASTGenerator {
 				"Binary   : Expr left, OpToken operator, Expr right",
 				"Grouping : Expr expression",
 				"Literal  : Object value",
-				"Unary    : OpToken operator, Expr right"
+				"Unary    : OpToken operator, Expr right",
+				"Variable : Token name"
 		));
 
 		defineAST(outDir, "Stmt", Arrays.asList(
 				"Expression : Expr expr",
-				"Print      : Expr expr"
+				"Print      : Expr expr",
+				"Var        : Token name, Expr initializer"
 		));
 	}
 

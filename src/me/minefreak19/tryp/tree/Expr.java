@@ -1,16 +1,16 @@
 package me.minefreak19.tryp.tree;
 
-import me.minefreak19.tryp.lex.token.OpToken;
+import me.minefreak19.tryp.lex.token.*;
+
+import java.util.*;
 
 public abstract class Expr {
 	public interface Visitor<R> {
 		R visitBinaryExpr(Binary binary);
-
 		R visitGroupingExpr(Grouping grouping);
-
 		R visitLiteralExpr(Literal literal);
-
 		R visitUnaryExpr(Unary unary);
+		R visitVariableExpr(Variable variable);
 	}
 
 	public static class Binary extends Expr {
@@ -69,6 +69,19 @@ public abstract class Expr {
 
 		public final OpToken operator;
 		public final Expr right;
+	}
+
+	public static class Variable extends Expr {
+		public Variable(Token name) {
+			this.name = name;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitVariableExpr(this);
+		}
+
+		public final Token name;
 	}
 
 	public abstract <R> R accept(Visitor<R> visitor);
