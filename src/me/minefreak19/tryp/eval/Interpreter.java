@@ -291,7 +291,7 @@ public class Interpreter
 
 	@Override
 	public Void visitProcDeclStmt(Stmt.ProcDecl stmt) {
-		environment.define(stmt.name.getText(), new TrypProc(stmt));
+		environment.define(stmt.name.getText(), new TrypProc(stmt, this.environment));
 
 		return null;
 	}
