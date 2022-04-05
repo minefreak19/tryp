@@ -16,7 +16,11 @@ public record TrypProc(Stmt.ProcDecl declaration) implements TrypCallable {
 		for (int i = 0; i < args.size(); i++) {
 			env.define(declaration.params.get(i).getText(), args.get(i));
 		}
-		interpreter.executeBlock(declaration.body, env);
+		try {
+			interpreter.executeBlock(declaration.body, env);
+		} catch (Return ret) {
+			return ret.value;
+		}
 
 		return null;
 	}

@@ -14,7 +14,8 @@ statement      → exprStmt
                | block
                | ifStmt
                | whileStmt
-               | forStmt ;
+               | forStmt
+               | returnStmt ;
 
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
@@ -28,6 +29,7 @@ forStmt        → "for" "("
                     expression?
                  ")" statement
                ;
+returnStmt     → "return" expression? ";" ;
 
 expression     → compound ;
 compound       → assignment ( (",") assignment )* ;

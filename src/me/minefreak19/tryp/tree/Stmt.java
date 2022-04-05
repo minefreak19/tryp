@@ -11,6 +11,7 @@ public abstract class Stmt {
 		R visitIfStmt(If stmt);
 		R visitPrintStmt(Print stmt);
 		R visitProcDeclStmt(ProcDecl stmt);
+		R visitReturnStmt(Return stmt);
 		R visitVarStmt(Var stmt);
 		R visitWhileStmt(While stmt);
 	}
@@ -86,6 +87,21 @@ public abstract class Stmt {
 		public final Token name;
 		public final List<Token> params;
 		public final List<Stmt> body;
+	}
+
+	public static class Return extends Stmt {
+		public Return(Token kw, Expr value) {
+			this.kw = kw;
+			this.value = value;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitReturnStmt(this);
+		}
+
+		public final Token kw;
+		public final Expr value;
 	}
 
 	public static class Var extends Stmt {

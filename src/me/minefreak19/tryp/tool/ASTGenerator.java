@@ -28,6 +28,7 @@ public class ASTGenerator {
 						" Stmt elseBranch",
 				"Print      : Expr expr",
 				"ProcDecl   : Token name, List<Token> params, List<Stmt> body",
+				"Return     : Token kw, Expr value",
 				"Var        : Token name, Expr initializer",
 				"While      : Expr condition, Stmt body"
 		));

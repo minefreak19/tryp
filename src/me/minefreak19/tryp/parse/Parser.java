@@ -122,6 +122,7 @@ public final class Parser {
 		if (match(IF)) return ifStatement();
 		if (match(WHILE)) return whileStatement();
 		if (match(FOR)) return forStatement();
+		if (match(RETURN)) return returnStatement();
 
 		return expressionStatement();
 	}
@@ -249,6 +250,19 @@ public final class Parser {
 
 			return new Stmt.Block(outerStmts);
 		}
+	}
+
+	/**
+	 * Expects 'return' keyword to already be consumed.
+	 */
+	private Stmt returnStatement() {
+		KeywordToken kw = (KeywordToken) previous();
+		Expr value = null;
+		if (!check(SEMICOLON))
+			value = expression();
+
+		expect(SEMICOLON);
+		return new Stmt.Return(kw, value);
 	}
 
 	private Stmt expressionStatement() {
