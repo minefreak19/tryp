@@ -2,6 +2,8 @@ package me.minefreak19.tryp.util;
 
 import me.minefreak19.tryp.tree.Expr;
 
+import java.util.Arrays;
+
 public class ASTPrinter implements Expr.Visitor<String> {
 
 	public String print(Expr expr) {
@@ -16,6 +18,12 @@ public class ASTPrinter implements Expr.Visitor<String> {
 	@Override
 	public String visitBinaryExpr(Expr.Binary binary) {
 		return parenthesize(binary.operator.getText(), binary.left, binary.right);
+	}
+
+	@Override
+	public String visitCallExpr(Expr.Call expr) {
+		return parenthesize("call", expr.callee,
+				new Expr.Literal(Arrays.toString(expr.args.stream().map(this::print).toArray())));
 	}
 
 	@Override

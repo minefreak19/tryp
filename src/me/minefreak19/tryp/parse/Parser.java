@@ -328,7 +328,25 @@ public final class Parser {
 			return new Expr.Unary(opTok, unary());
 		}
 
-		return primary();
+		return call();
+	}
+
+	private Expr call() {
+		Expr name = primary();
+		if (!check(OPEN_PAREN)) {
+			return name;
+		}
+		var paren = (OpToken) expect(OPEN_PAREN);
+		List<Expr> args;
+		if (!check(CLOSE_PAREN)) {
+			args = funArgs();
+		} else {
+			args = new ArrayList<>(0);
+		}
+
+		expect(CLOSE_PAREN);
+
+		return new Expr.Call(name, paren, args);
 	}
 
 	private Expr primary() {
@@ -366,6 +384,24 @@ public final class Parser {
 					.report();
 
 		};
+	}
+
+	/**
+	 * Expects at least one expression.
+	 */
+	@SuppressWarnings("ThrowableNotThrown")
+	private List<Expr> funArgs() {
+		var ret = new ArrayList<Expr>();
+		do {
+			if (ret.size() >= 255) {
+				new CompilerError()
+						.error(peek().getLoc(), "Function can't have more than 255 arguments")
+						.report();
+			}
+			ret.add(expression());
+		} while (match(COMMA));
+
+		return ret;
 	}
 
 	@SuppressWarnings("UnusedReturnValue")

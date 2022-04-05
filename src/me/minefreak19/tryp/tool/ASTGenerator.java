@@ -13,6 +13,7 @@ public class ASTGenerator {
 				// This gets a separate AST node, because its lhs can't be any old expression.
 				"Assign   : Token name, Expr value",
 				"Binary   : Expr left, OpToken operator, Expr right",
+				"Call     : Expr callee, OpToken paren, List<Expr> args",
 				"Grouping : Expr expression",
 				"Literal  : Object value",
 				"Logical  : Expr left, OpToken operator, Expr right",

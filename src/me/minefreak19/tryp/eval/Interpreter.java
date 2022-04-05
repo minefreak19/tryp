@@ -179,6 +179,25 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitCallExpr(Expr.Call expr) {
+		Object callee = evaluate(expr.callee);
+		var args = expr.args.stream()
+				.map(this::evaluate)
+				.toList();
+
+		if (callee instanceof TrypCallable f) {
+			if (args.size() != f.arity()) {
+				throw new RuntimeError(expr.paren,
+						"Incorrect number of arguments. (Expected = " + f.arity() + ", actual = "
+								+ args.size() + ")");
+			}
+			return f.call(this, args);
+		} else {
+			throw new RuntimeError(expr.paren, "Can't call non-callable expression");
+		}
+	}
+
+	@Override
 	public Object visitGroupingExpr(Expr.Grouping grouping) {
 		return evaluate(grouping.expression);
 	}
