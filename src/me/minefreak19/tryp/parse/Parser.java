@@ -64,6 +64,9 @@ public final class Parser {
 		}
 	}
 
+	/**
+	 * Expects 'var' keyword to be already consumed.
+	 */
 	private Stmt varDecl() {
 		Token varName = expect(IdentifierToken.class);
 
@@ -82,6 +85,7 @@ public final class Parser {
 		if (match(OPEN_CURLY)) return blockStatement();
 		if (match(IF)) return ifStatement();
 		if (match(WHILE)) return whileStatement();
+		if (match(FOR)) return forStatement();
 
 		return expressionStatement();
 	}
@@ -135,6 +139,80 @@ public final class Parser {
 		Stmt body = statement();
 
 		return new Stmt.While(condition, body);
+	}
+
+	/**
+	 * Note: A for loop compiles down to a while loop.
+	 * <p>
+	 * <code>
+	 * for (var i = 0; i < 10; i <- i + 1) {
+	 * print i;
+	 * }
+	 * </code>
+	 * <p>
+	 * is equivalent to
+	 * <p>
+	 * <code>
+	 * {
+	 * var i = 0;
+	 * while (i < 10) {
+	 * print i;
+	 * i <- i + 1;
+	 * }
+	 * }
+	 * </code>
+	 * <p>
+	 * See <a href="https://en.wikipedia.org/wiki/Syntactic_sugar">desugaring</a>.
+	 */
+	private Stmt forStatement() {
+		expect(OPEN_PAREN);
+		Stmt initializer;
+		if (match(VAR)) {
+			initializer = varDecl();
+		} else if (match(SEMICOLON)) {
+			initializer = null;
+		} else {
+			initializer = expressionStatement();
+		}
+
+		Expr condition;
+		if (!match(SEMICOLON)) {
+			condition = expression();
+			expect(SEMICOLON);
+		} else condition = null;
+
+		Expr updation;
+		if (check(CLOSE_PAREN)) {
+			updation = null;
+		} else {
+			updation = expression();
+		}
+
+		expect(CLOSE_PAREN);
+
+		Stmt forBody = statement();
+
+		{
+			Stmt whileBody;
+			if (updation != null) {
+				var bodyList = new ArrayList<Stmt>(2);
+				bodyList.add(forBody);
+				bodyList.add(new Stmt.Expression(updation));
+				whileBody = new Stmt.Block(bodyList);
+			} else {
+				whileBody = forBody;
+			}
+
+			if (condition == null) condition = new Expr.Literal(true);
+
+			var outerStmts = new ArrayList<Stmt>(2);
+			if (initializer != null) {
+				outerStmts.add(initializer);
+			}
+			outerStmts.add(new Stmt.While(condition, whileBody));
+
+			return new Stmt.Block(outerStmts);
+		}
 	}
 
 	private Stmt expressionStatement() {
