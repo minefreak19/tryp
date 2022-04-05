@@ -10,8 +10,8 @@ public class Interpreter
 		implements Expr.Visitor<Object>,
 				           Stmt.Visitor<Void> {
 	private boolean hadError = false;
-
-	private Environment environment = new Environment();
+	private final Environment globals = new Environment();
+	private Environment environment = globals;
 
 	public static boolean isTruthy(Object o) {
 		return switch (o) {
@@ -69,6 +69,29 @@ public class Interpreter
 		if (value instanceof String s) return s;
 
 		return stringify(value);
+	}
+
+	public Interpreter() {
+		defineNatives();
+	}
+
+	private void defineNatives() {
+		globals.define("clock", new TrypCallable() {
+			@Override
+			public int arity() {
+				return 0;
+			}
+
+			@Override
+			public Object call(Interpreter interpreter, List<Object> args) {
+				return (double) System.currentTimeMillis();
+			}
+
+			@Override
+			public String toString() {
+				return "<native>";
+			}
+		});
 	}
 
 	public void interpret(List<Stmt> program) {
