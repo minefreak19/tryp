@@ -258,6 +258,16 @@ public class Interpreter
 		return null;
 	}
 
+	@Override
+	public Void visitWhileStmt(Stmt.While stmt) {
+		// isTruthy() converts stuff like `1` -> `true`
+		// so that the while only checks a boolean
+		while (isTruthy(evaluate(stmt.condition))) {
+			execute(stmt.body);
+		}
+		return null;
+	}
+
 	public boolean hadError() {
 		return hadError;
 	}

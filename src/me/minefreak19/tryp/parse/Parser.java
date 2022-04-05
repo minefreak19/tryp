@@ -81,6 +81,7 @@ public final class Parser {
 		if (match(PRINT)) return printStatement();
 		if (match(OPEN_CURLY)) return blockStatement();
 		if (match(IF)) return ifStatement();
+		if (match(WHILE)) return whileStatement();
 
 		return expressionStatement();
 	}
@@ -124,6 +125,16 @@ public final class Parser {
 		}
 
 		return new Stmt.If(condition, thenBranch, elseBranch);
+	}
+
+	private Stmt whileStatement() {
+		expect(OPEN_PAREN);
+		Expr condition = expression();
+		expect(CLOSE_PAREN);
+
+		Stmt body = statement();
+
+		return new Stmt.While(condition, body);
 	}
 
 	private Stmt expressionStatement() {
