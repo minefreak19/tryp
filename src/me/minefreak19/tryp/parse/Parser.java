@@ -90,8 +90,7 @@ public final class Parser {
 
 		List<Token> params;
 		if (!check(CLOSE_PAREN)) {
-			// TODO: rename funParams to procParams, funArgs to procArgs
-			params = funParams();
+			params = procParams();
 		} else {
 			params = new ArrayList<>(0);
 		}
@@ -107,7 +106,7 @@ public final class Parser {
 	 * Expects opening paren to be consumed. Does not consume closing paren.
 	 * Expects at least one parameter to be present.
 	 */
-	private List<Token> funParams() {
+	private List<Token> procParams() {
 		var ret = new ArrayList<Token>();
 
 		do {
@@ -376,7 +375,7 @@ public final class Parser {
 		var paren = (OpToken) expect(OPEN_PAREN);
 		List<Expr> args;
 		if (!check(CLOSE_PAREN)) {
-			args = funArgs();
+			args = procArgs();
 		} else {
 			args = new ArrayList<>(0);
 		}
@@ -427,7 +426,7 @@ public final class Parser {
 	 * Expects at least one expression.
 	 */
 	@SuppressWarnings("ThrowableNotThrown")
-	private List<Expr> funArgs() {
+	private List<Expr> procArgs() {
 		var ret = new ArrayList<Expr>();
 		do {
 			if (ret.size() >= 255) {
