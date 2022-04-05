@@ -10,6 +10,7 @@ public abstract class Stmt {
 		R visitExpressionStmt(Expression stmt);
 		R visitIfStmt(If stmt);
 		R visitPrintStmt(Print stmt);
+		R visitProcDeclStmt(ProcDecl stmt);
 		R visitVarStmt(Var stmt);
 		R visitWhileStmt(While stmt);
 	}
@@ -68,6 +69,23 @@ public abstract class Stmt {
 		}
 
 		public final Expr expr;
+	}
+
+	public static class ProcDecl extends Stmt {
+		public ProcDecl(Token name, List<Token> params, List<Stmt> body) {
+			this.name = name;
+			this.params = params;
+			this.body = body;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitProcDeclStmt(this);
+		}
+
+		public final Token name;
+		public final List<Token> params;
+		public final List<Stmt> body;
 	}
 
 	public static class Var extends Stmt {

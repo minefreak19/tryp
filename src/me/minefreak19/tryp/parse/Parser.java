@@ -55,6 +55,7 @@ public final class Parser {
 	private Stmt declaration() {
 		try {
 			if (match(VAR)) return varDecl();
+			if (match(PROC)) return procDecl();
 
 			return statement();
 		} catch (SyntaxException exception) {
@@ -80,9 +81,45 @@ public final class Parser {
 		return new Stmt.Var(varName, initializer);
 	}
 
+	/**
+	 * expects proc keyword to be already consumed
+	 */
+	private Stmt procDecl() {
+		var name = expect(IdentifierToken.class);
+		expect(OPEN_PAREN);
+
+		List<Token> params;
+		if (!check(CLOSE_PAREN)) {
+			// TODO: rename funParams to procParams, funArgs to procArgs
+			params = funParams();
+		} else {
+			params = new ArrayList<>(0);
+		}
+		expect(CLOSE_PAREN);
+
+		expect(OPEN_CURLY);
+		List<Stmt> body = blockStatement();
+
+		return new Stmt.ProcDecl(name, params, body);
+	}
+
+	/**
+	 * Expects opening paren to be consumed. Does not consume closing paren.
+	 * Expects at least one parameter to be present.
+	 */
+	private List<Token> funParams() {
+		var ret = new ArrayList<Token>();
+
+		do {
+			ret.add(expect(IdentifierToken.class));
+		} while (match(COMMA));
+
+		return ret;
+	}
+
 	private Stmt statement() {
 		if (match(PRINT)) return printStatement();
-		if (match(OPEN_CURLY)) return blockStatement();
+		if (match(OPEN_CURLY)) return new Stmt.Block(blockStatement());
 		if (match(IF)) return ifStatement();
 		if (match(WHILE)) return whileStatement();
 		if (match(FOR)) return forStatement();
@@ -102,7 +139,7 @@ public final class Parser {
 	 * Expects the opening curly to be already consumed.
 	 * Consumes the closing curly.
 	 */
-	private Stmt blockStatement() {
+	private List<Stmt> blockStatement() {
 		var statements = new ArrayList<Stmt>();
 
 		while (!check(CLOSE_CURLY) && !atEnd()) {
@@ -111,7 +148,7 @@ public final class Parser {
 
 		expect(CLOSE_CURLY);
 
-		return new Stmt.Block(statements);
+		return statements;
 	}
 
 	private Stmt ifStatement() {

@@ -105,11 +105,11 @@ public class Interpreter
 		}
 	}
 
-	private void execute(Stmt stmt) {
+	public void execute(Stmt stmt) {
 		stmt.accept(this);
 	}
 
-	private void executeBlock(List<Stmt> statements, Environment environment) {
+	public void executeBlock(List<Stmt> statements, Environment environment) {
 		Environment previous = this.environment;
 		try {
 			this.environment = environment;
@@ -290,6 +290,13 @@ public class Interpreter
 	}
 
 	@Override
+	public Void visitProcDeclStmt(Stmt.ProcDecl stmt) {
+		environment.define(stmt.name.getText(), new TrypProc(stmt));
+
+		return null;
+	}
+
+	@Override
 	public Void visitVarStmt(Stmt.Var var) {
 		Object value = null;
 		if (var.initializer != null) {
@@ -312,5 +319,9 @@ public class Interpreter
 
 	public boolean hadError() {
 		return hadError;
+	}
+
+	public Environment getEnvironment() {
+		return this.environment;
 	}
 }

@@ -1,9 +1,13 @@
 program        → declaration* EOF;
 
 declaration    → varDecl
+               | funDecl
                | statement ;
 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+funDecl        → "proc" IDENTIFIER "(" funParams? ")" block ;
+
+funParams      → IDENTIFIER ("," IDENTIFIER)* ;
 
 statement      → exprStmt
                | printStmt
