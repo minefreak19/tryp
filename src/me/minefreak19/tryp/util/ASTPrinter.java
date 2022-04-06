@@ -32,6 +32,11 @@ public class ASTPrinter implements Expr.Visitor<String> {
 	}
 
 	@Override
+	public String visitLambdaExpr(Expr.Lambda expr) {
+		return "(<lambda>)";
+	}
+
+	@Override
 	public String visitLiteralExpr(Expr.Literal literal) {
 		return literal.value.toString();
 	}

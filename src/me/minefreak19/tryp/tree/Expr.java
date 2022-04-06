@@ -10,6 +10,7 @@ public abstract class Expr {
 		R visitBinaryExpr(Binary expr);
 		R visitCallExpr(Call expr);
 		R visitGroupingExpr(Grouping expr);
+		R visitLambdaExpr(Lambda expr);
 		R visitLiteralExpr(Literal expr);
 		R visitLogicalExpr(Logical expr);
 		R visitUnaryExpr(Unary expr);
@@ -76,6 +77,23 @@ public abstract class Expr {
 		}
 
 		public final Expr expression;
+	}
+
+	public static class Lambda extends Expr {
+		public Lambda(OpToken lambda, List<Token> params, List<Stmt> body) {
+			this.lambda = lambda;
+			this.params = params;
+			this.body = body;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitLambdaExpr(this);
+		}
+
+		public final OpToken lambda;
+		public final List<Token> params;
+		public final List<Stmt> body;
 	}
 
 	public static class Literal extends Expr {

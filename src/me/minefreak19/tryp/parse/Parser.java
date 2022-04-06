@@ -272,7 +272,32 @@ public final class Parser {
 	}
 
 	private Expr expression() {
+		if (match(BACKSLASH)) return lambdaExpr();
+
 		return compound();
+	}
+
+	/**
+	 * expects backslash to be consumed already. Consumes rest of lambda.
+	 */
+	private Expr lambdaExpr() {
+		var lambda = (OpToken) previous();
+		expect(OPEN_PAREN);
+
+		List<Token> params;
+		if (!check(CLOSE_PAREN)) {
+			params = procParams();
+		} else {
+			params = new ArrayList<>(0);
+		}
+		expect(CLOSE_PAREN);
+
+		expect(RIGHT_ARROW);
+
+		expect(OPEN_CURLY);
+		List<Stmt> body = blockStatement();
+
+		return new Expr.Lambda(lambda, params, body);
 	}
 
 	private Expr compound() {

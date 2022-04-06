@@ -31,7 +31,11 @@ forStmt        → "for" "("
                ;
 returnStmt     → "return" expression? ";" ;
 
-expression     → compound ;
+expression     → lambdaExpr
+               | compound ;
+
+lambdaExpr     → "\" "(" funParams? ")" "->" block ;
+
 compound       → assignment ( (",") assignment )* ;
 assignment     → IDENTIFIER "<-" assignment
                | logical_or ;

@@ -1,5 +1,6 @@
 package me.minefreak19.tryp.eval;
 
+import me.minefreak19.tryp.lex.token.IdentifierToken;
 import me.minefreak19.tryp.lex.token.OpToken;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
@@ -223,6 +224,17 @@ public class Interpreter
 	@Override
 	public Object visitGroupingExpr(Expr.Grouping grouping) {
 		return evaluate(grouping.expression);
+	}
+
+	@Override
+	public Object visitLambdaExpr(Expr.Lambda expr) {
+		var decl = new Stmt.ProcDecl(
+				new IdentifierToken(expr.lambda.getLoc(), "<lambda fn>"),
+				expr.params,
+				expr.body
+		);
+
+		return new TrypProc(decl, this.environment);
 	}
 
 	@Override
