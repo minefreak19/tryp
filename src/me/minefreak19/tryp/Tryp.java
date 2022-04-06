@@ -4,6 +4,7 @@ import me.minefreak19.tryp.eval.Interpreter;
 import me.minefreak19.tryp.lex.FileLocation;
 import me.minefreak19.tryp.lex.Lexer;
 import me.minefreak19.tryp.parse.Parser;
+import me.minefreak19.tryp.parse.Resolver;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -62,6 +63,9 @@ public class Tryp {
 		Parser parser = new Parser(tokens);
 		var program = parser.parse();
 		if (parser.hadError()) return;
+
+		var resolver = new Resolver(interpreter);
+		resolver.resolve(program);
 
 		interpreter.interpret(program);
 	}

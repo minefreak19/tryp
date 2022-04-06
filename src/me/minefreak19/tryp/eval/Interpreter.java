@@ -5,7 +5,9 @@ import me.minefreak19.tryp.lex.token.OpToken;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter
 		implements Expr.Visitor<Object>,
@@ -13,6 +15,8 @@ public class Interpreter
 	private boolean hadError = false;
 	private final Environment globals = new Environment();
 	private Environment environment = globals;
+
+	private final Map<Expr, Integer> localVarDepths = new HashMap<>();
 
 	public static boolean isTruthy(Object o) {
 		return switch (o) {
@@ -127,10 +131,30 @@ public class Interpreter
 		return expr.accept(this);
 	}
 
+	public void resolve(Expr expr, int depth) {
+		localVarDepths.put(expr, depth);
+	}
+
+	private Object lookupVar(IdentifierToken name, Expr expr) {
+		Integer depth = localVarDepths.get(expr);
+		if (depth == null) {
+			return globals.get(name);
+		}
+
+		return environment.getAt(depth, name);
+	}
+
 	@Override
 	public Object visitAssignExpr(Expr.Assign assign) {
 		Object value = evaluate(assign.value);
-		environment.assign(assign.name, value);
+
+		Integer depth = localVarDepths.get(assign);
+		if (depth != null) {
+			environment.assignAt(depth, assign.name, assign.value);
+		} else {
+			environment.assign(assign.name, value);
+		}
+
 		return value;
 	}
 
@@ -269,7 +293,7 @@ public class Interpreter
 
 	@Override
 	public Object visitVariableExpr(Expr.Variable variable) {
-		return environment.get(variable.name);
+		return lookupVar((IdentifierToken) variable.name, variable);
 	}
 
 	@Override

@@ -34,6 +34,22 @@ public class Environment {
 		throw new RuntimeError(name, "Undefined variable `" + name.getText() + "`.");
 	}
 
+	public Object getAt(int depth, Token name) {
+		return this.ancestor(depth).get(name);
+	}
+
+	private Environment ancestor(int depth) {
+		var env = this;
+		for (int i = 0; i < depth; i++) {
+			if (env == null) {
+				throw new IllegalArgumentException("depth " + depth + " too high! max " + i);
+			}
+			env = env.parent;
+		}
+
+		return env;
+	}
+
 	public void assign(Token name, Object value) {
 		if (values.containsKey(name.getText())) {
 			values.put(name.getText(), value);
@@ -46,6 +62,10 @@ public class Environment {
 		}
 
 		throw new RuntimeError(name, "Undefined variable `" + name.getText() + "`.");
+	}
+
+	public void assignAt(int depth, Token name, Object value) {
+		this.ancestor(depth).values.put(name.getText(), value);
 	}
 
 	public Environment getParent() {
