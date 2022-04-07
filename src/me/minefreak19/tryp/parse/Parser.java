@@ -1,7 +1,6 @@
 package me.minefreak19.tryp.parse;
 
 import me.minefreak19.tryp.SyntaxException;
-import me.minefreak19.tryp.Tryp;
 import me.minefreak19.tryp.lex.token.*;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
@@ -59,7 +58,6 @@ public final class Parser {
 
 			return statement();
 		} catch (SyntaxException exception) {
-			Tryp.hadError = true;
 			sync();
 			return null;
 		}

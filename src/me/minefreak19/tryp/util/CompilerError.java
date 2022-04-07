@@ -1,6 +1,7 @@
 package me.minefreak19.tryp.util;
 
 import me.minefreak19.tryp.SyntaxException;
+import me.minefreak19.tryp.Tryp;
 import me.minefreak19.tryp.lex.FileLocation;
 import me.minefreak19.tryp.lex.token.Token;
 
@@ -85,6 +86,7 @@ public class CompilerError {
 	}
 
 	public SyntaxException report(PrintStream err) {
+		Tryp.hadError = true;
 		String msg = this.message.toString();
 		err.print(msg);
 		message.setLength(0);
