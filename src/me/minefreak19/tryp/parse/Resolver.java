@@ -16,8 +16,18 @@ public final class Resolver
 		implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 	private final Interpreter interpreter;
 	// stack<map<string name, boolean defined>>
-	private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+	private final Stack<Map<String, Var>> scopes = new Stack<>();
 	private ProcType currentProc = ProcType.NONE;
+
+	private static class Var {
+		public boolean defined = false;
+		public boolean used = false;
+		public Token name;
+
+		public Var(Token name) {
+			this.name = name;
+		}
+	}
 
 	private enum ProcType {
 		NONE,
@@ -46,24 +56,42 @@ public final class Resolver
 	}
 
 	private void endScope() {
-		scopes.pop();
+		var scope = scopes.pop();
+		checkUnused(scope);
+	}
+
+	private void checkUnused(Map<String, Var> scope) {
+		for (var entry : scope.entrySet()) {
+			if (!entry.getValue().used) {
+				new CompilerError()
+						.error(entry.getValue().name.getLoc(),
+								"Unused variable " + entry.getKey())
+						.report();
+			}
+		}
 	}
 
 	private void declare(Token name) {
 		if (scopes.isEmpty()) return;
 
-		scopes.peek().put(name.getText(), false);
+		scopes.peek().put(name.getText(), new Var(name));
 	}
 
 	private void define(Token name) {
 		if (scopes.isEmpty()) return;
 
-		scopes.peek().put(name.getText(), true);
+		try {
+			scopes.peek().get(name.getText()).defined = true;
+		} catch (NullPointerException e) {
+			throw new IllegalStateException("`define` called before `declare` for var "
+					                                + name.getText(), e);
+		}
 	}
 
 	private void resolveLocal(Expr expr, Token name) {
 		for (int i = 0; i < scopes.size(); i++) {
 			if (scopes.get(i).containsKey(name.getText())) {
+				scopes.get(i).get(name.getText()).used = true;
 				interpreter.resolve(expr, scopes.size() - i - 1);
 				return;
 			}
@@ -150,7 +178,7 @@ public final class Resolver
 	@Override
 	public Void visitVariableExpr(Expr.Variable expr) {
 		if (!scopes.empty()
-				    && !scopes.peek().get(expr.name.getText())) {
+				    && !scopes.peek().get(expr.name.getText()).defined) {
 			new CompilerError()
 					.error(expr.name.getLoc(), "Can't read local variable in its own initializer.")
 					.report();
