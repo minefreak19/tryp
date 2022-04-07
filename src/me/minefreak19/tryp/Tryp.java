@@ -14,6 +14,7 @@ import java.nio.file.Files;
 
 public class Tryp {
 	private static final Interpreter interpreter = new Interpreter();
+	public static boolean hadError = false;
 
 	public static void main(String[] args) throws IOException {
 		if (args.length > 1) {
@@ -49,7 +50,7 @@ public class Tryp {
 
 		Parser parser = new Parser(tokens);
 		var program = parser.parse();
-		if (parser.hadError()) return;
+		if (hadError) return;
 
 		var resolver = new Resolver(interpreter);
 		resolver.resolve(program);
