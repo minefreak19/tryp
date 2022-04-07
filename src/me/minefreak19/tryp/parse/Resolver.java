@@ -1,5 +1,6 @@
 package me.minefreak19.tryp.parse;
 
+import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.eval.Interpreter;
 import me.minefreak19.tryp.lex.token.Token;
 import me.minefreak19.tryp.tree.Expr;
@@ -11,18 +12,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+@SuppressWarnings("ThrowableNotThrown")
 public final class Resolver
 		implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 	private final Interpreter interpreter;
 	// stack<map<string name, boolean defined>>
 	private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+	private ProcType currentProc = ProcType.NONE;
+	private boolean hadError = false;
+
+	private enum ProcType {
+		NONE,
+		PROC,
+		LAMBDA,
+	}
 
 	public Resolver(Interpreter interpreter) {
 		this.interpreter = interpreter;
 	}
 
 	public void resolve(List<Stmt> statements) {
-		statements.forEach(this::resolve);
+		try {
+			statements.forEach(this::resolve);
+		} catch (SyntaxException e) {
+			this.hadError = true;
+			throw e;
+		}
 	}
 
 	private void resolve(Stmt stmt) {
@@ -63,6 +78,8 @@ public final class Resolver
 	}
 
 	private void resolveFunction(Stmt.ProcDecl proc) {
+		var prevProc = currentProc;
+		currentProc = ProcType.PROC;
 		beginScope();
 		for (Token param : proc.params) {
 			declare(param);
@@ -71,6 +88,7 @@ public final class Resolver
 
 		resolve(proc.body);
 		endScope();
+		currentProc = prevProc;
 	}
 
 	@Override
@@ -103,6 +121,8 @@ public final class Resolver
 
 	@Override
 	public Void visitLambdaExpr(Expr.Lambda expr) {
+		var prevProc = currentProc;
+		currentProc = ProcType.LAMBDA;
 		beginScope();
 		for (Token param : expr.params) {
 			declare(param);
@@ -110,6 +130,8 @@ public final class Resolver
 		}
 
 		resolve(expr.body);
+
+		currentProc = prevProc;
 		return null;
 	}
 
@@ -133,7 +155,6 @@ public final class Resolver
 	}
 
 	@Override
-	@SuppressWarnings("ThrowableNotThrown")
 	public Void visitVariableExpr(Expr.Variable expr) {
 		if (!scopes.empty()
 				    && !scopes.peek().get(expr.name.getText())) {
@@ -186,6 +207,11 @@ public final class Resolver
 	@Override
 	public Void visitReturnStmt(Stmt.Return stmt) {
 		if (stmt.value != null) resolve(stmt.value);
+		if (currentProc == ProcType.NONE) {
+			new CompilerError()
+					.error(stmt.kw.getLoc(), "Can't return from outside a proc.")
+					.report();
+		}
 		// we don't call endScope() here because resolution
 		// has nothing to do with the control flow
 		// we only care about resolving every variable referred to
@@ -207,5 +233,9 @@ public final class Resolver
 		resolve(stmt.condition);
 		resolve(stmt.body);
 		return null;
+	}
+
+	public boolean hadError() {
+		return this.hadError;
 	}
 }
