@@ -13,38 +13,25 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 
 public class Tryp {
-	private final Interpreter interpreter = new Interpreter();
+	private static final Interpreter interpreter = new Interpreter();
 
 	public static void main(String[] args) throws IOException {
 		if (args.length > 1) {
 			System.err.println("Usage: tryp [sourcefile]");
 			System.exit(64);
 		} else if (args.length == 1) {
-			new Tryp(new File(args[0]));
+			runFile(new File(args[0]));
 		} else {
-			new Tryp();
+			runREPL();
 		}
 	}
 
-	/**
-	 * Runs tryp code from source file.
-	 *
-	 * @param file Sourcefile.
-	 */
-	private Tryp(File file) throws IOException {
-		runFile(file);
-	}
-
-	private Tryp() throws IOException {
-		runREPL();
-	}
-
-	private void runFile(File file) throws IOException {
+	private static void runFile(File file) throws IOException {
 		String source = Files.readString(file.toPath());
 		run(source, file.getName());
 	}
 
-	private void runREPL() throws IOException {
+	private static void runREPL() throws IOException {
 		var br = new BufferedReader(new InputStreamReader(System.in));
 
 		while (true) {
@@ -56,7 +43,7 @@ public class Tryp {
 		}
 	}
 
-	private void run(String source, String fileName) {
+	private static void run(String source, String fileName) {
 		Lexer lexer = new Lexer(source, new FileLocation(fileName, 1, 1));
 		var tokens = lexer.tokens();
 
