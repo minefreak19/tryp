@@ -4,9 +4,6 @@ import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.token.*;
 import me.minefreak19.tryp.util.CompilerError;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,10 +34,6 @@ public class Lexer {
 	public Lexer(String source, FileLocation loc) {
 		this.source = source;
 		this.loc = loc;
-	}
-
-	public Lexer(File file) throws IOException {
-		this(Files.readString(file.toPath()), FileLocation.from(file));
 	}
 
 	private void trimWhitespace() {
