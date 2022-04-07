@@ -16,14 +16,6 @@ public class Lexer {
 	private String source;
 	private final FileLocation loc;
 
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-
 	public FileLocation getLoc() {
 		return loc;
 	}
