@@ -51,16 +51,6 @@ public class Lexer {
 		this(Files.readString(file.toPath()), FileLocation.from(file));
 	}
 
-	private static class InvalidEscapeException extends SyntaxException {
-		public static InvalidEscapeException forChar(Lexer ctx, char ch) {
-			return new InvalidEscapeException(ctx.loc, "invalid escape sequence `\\" + ch + "`");
-		}
-
-		public InvalidEscapeException(FileLocation loc, String message) {
-			super(loc, message);
-		}
-	}
-
 	private void trimWhitespace() {
 		int i;
 		for (i = 0; i < source.length(); i++) {
@@ -182,7 +172,9 @@ public class Lexer {
 					case 't' -> '\t';
 					case '"' -> '"';
 					case '\\' -> '\\';
-					default -> throw InvalidEscapeException.forChar(this, ch);
+					default -> throw new CompilerError()
+							.error(this.loc, "Invalid escape sequence `\\" + ch + "`")
+							.report();
 				});
 			} else {
 				switch (ch) {
