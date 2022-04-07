@@ -1,6 +1,5 @@
 package me.minefreak19.tryp.parse;
 
-import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.eval.Interpreter;
 import me.minefreak19.tryp.lex.token.Token;
 import me.minefreak19.tryp.tree.Expr;
@@ -19,7 +18,6 @@ public final class Resolver
 	// stack<map<string name, boolean defined>>
 	private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 	private ProcType currentProc = ProcType.NONE;
-	private boolean hadError = false;
 
 	private enum ProcType {
 		NONE,
@@ -32,12 +30,7 @@ public final class Resolver
 	}
 
 	public void resolve(List<Stmt> statements) {
-		try {
-			statements.forEach(this::resolve);
-		} catch (SyntaxException e) {
-			this.hadError = true;
-			throw e;
-		}
+		statements.forEach(this::resolve);
 	}
 
 	private void resolve(Stmt stmt) {
@@ -233,9 +226,5 @@ public final class Resolver
 		resolve(stmt.condition);
 		resolve(stmt.body);
 		return null;
-	}
-
-	public boolean hadError() {
-		return this.hadError;
 	}
 }
