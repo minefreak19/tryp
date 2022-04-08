@@ -15,11 +15,23 @@ public record TrypClass(String name, Map<String, TrypProc> methods) implements T
 
 	@Override
 	public int arity() {
+		TrypProc constructor = findMethod("$init");
+		if (constructor != null) {
+			return constructor.arity();
+		}
+
 		return 0;
 	}
 
 	@Override
 	public Object call(Interpreter interpreter, List<Object> args) {
-		return new TrypInstance(this);
+		var instance = new TrypInstance(this);
+
+		TrypProc constructor = findMethod("$init");
+		if (constructor != null) {
+			constructor.bind(instance).call(interpreter, args);
+		}
+
+		return instance;
 	}
 }

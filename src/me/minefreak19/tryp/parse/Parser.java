@@ -107,7 +107,15 @@ public final class Parser {
 		expect(OPEN_CURLY);
 		var methods = new ArrayList<Stmt.ProcDecl>();
 		while (!check(CLOSE_CURLY) && !atEnd()) {
-			methods.add((Stmt.ProcDecl) procDecl());
+			var method = (Stmt.ProcDecl) procDecl();
+			if (method.name.getText().equals(name.getText())) {
+				// Constructor => special name
+				method = new Stmt.ProcDecl(
+						new IdentifierToken(method.name.getLoc(), "$init"),
+						method.params, method.body
+				);
+			}
+			methods.add(method);
 		}
 		expect(CLOSE_CURLY);
 
