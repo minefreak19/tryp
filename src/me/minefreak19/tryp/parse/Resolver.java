@@ -19,6 +19,7 @@ public final class Resolver
 	// stack<map<string name, boolean defined>>
 	private final Stack<Map<String, Var>> scopes = new Stack<>();
 	private ProcType currentProc = ProcType.NONE;
+	private ClassType currentClass = ClassType.NONE;
 
 	private static class Var {
 		public boolean defined = false;
@@ -41,6 +42,10 @@ public final class Resolver
 		PROC,
 		LAMBDA,
 		METHOD,
+	}
+
+	private enum ClassType {
+		NONE, CLASS,
 	}
 
 	public Resolver(Interpreter interpreter) {
@@ -193,6 +198,11 @@ public final class Resolver
 
 	@Override
 	public Void visitThisExpr(Expr.This expr) {
+		if (this.currentClass == ClassType.NONE) {
+			new CompilerError()
+					.badToken(expr.kw, "Can't use `this` outside a class")
+					.report();
+		}
 		resolveLocal(expr, expr.kw);
 		return null;
 	}
@@ -230,6 +240,8 @@ public final class Resolver
 		declare(stmt.name);
 		define(stmt.name);
 
+		var prevClassType = this.currentClass;
+		this.currentClass = ClassType.CLASS;
 		beginScope();
 		scopes.peek().put("this", new Var(true, true, new KeywordToken(null, "this")));
 
@@ -239,6 +251,7 @@ public final class Resolver
 		}
 
 		endScope();
+		this.currentClass = prevClassType;
 
 		return null;
 	}
