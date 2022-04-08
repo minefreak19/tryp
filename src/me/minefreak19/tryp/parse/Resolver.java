@@ -42,6 +42,7 @@ public final class Resolver
 		PROC,
 		LAMBDA,
 		METHOD,
+		CONSTRUCTOR,
 	}
 
 	private enum ClassType {
@@ -247,6 +248,7 @@ public final class Resolver
 
 		for (Stmt.ProcDecl method : stmt.methods) {
 			ProcType type = ProcType.METHOD;
+			if (method.name.getText().equals("$init")) type = ProcType.CONSTRUCTOR;
 			resolveFunction(method, type);
 		}
 
@@ -287,7 +289,16 @@ public final class Resolver
 
 	@Override
 	public Void visitReturnStmt(Stmt.Return stmt) {
-		if (stmt.value != null) resolve(stmt.value);
+		if (stmt.value != null) {
+			if (currentProc == ProcType.CONSTRUCTOR) {
+				new CompilerError()
+						.error(stmt.kw.getLoc(), "Can't return a value from a constructor.")
+						.report();
+			}
+
+			resolve(stmt.value);
+		}
+
 		if (currentProc == ProcType.NONE) {
 			new CompilerError()
 					.error(stmt.kw.getLoc(), "Can't return from outside a proc.")
