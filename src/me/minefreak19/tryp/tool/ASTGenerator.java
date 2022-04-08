@@ -20,6 +20,7 @@ public class ASTGenerator {
 				"Literal  : Object value",
 				"Logical  : Expr left, OpToken operator, Expr right",
 				"Set      : Expr object, IdentifierToken name, Expr value",
+				"This     : KeywordToken kw",
 				"Unary    : OpToken operator, Expr right",
 				"Variable : Token name"
 		));

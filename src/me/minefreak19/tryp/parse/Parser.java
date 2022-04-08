@@ -452,14 +452,17 @@ public final class Parser {
 		var token = advance();
 		return switch (token) {
 
-			case KeywordToken kwTok -> new Expr.Literal(switch (kwTok.getValue()) {
-				case NIL -> null;
-				case TRUE -> true;
-				case FALSE -> false;
+			case KeywordToken kwTok -> switch (kwTok.getValue()) {
+				case NIL -> new Expr.Literal(null);
+				case TRUE -> new Expr.Literal(true);
+				case FALSE -> new Expr.Literal(false);
+
+				case THIS -> new Expr.This(kwTok);
+
 				default -> throw new CompilerError()
 						.badToken(token, "Unexpected keyword here")
 						.report();
-			});
+			};
 
 			case NumberToken intTok -> new Expr.Literal(intTok.getValue());
 			case StringToken strTok -> new Expr.Literal(strTok.getValue());

@@ -2,6 +2,7 @@ package me.minefreak19.tryp.eval;
 
 import me.minefreak19.tryp.lex.token.IdentifierToken;
 import me.minefreak19.tryp.lex.token.OpToken;
+import me.minefreak19.tryp.lex.token.Token;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
 
@@ -135,7 +136,7 @@ public class Interpreter
 		localVarDepths.put(expr, depth);
 	}
 
-	private Object lookupVar(IdentifierToken name, Expr expr) {
+	private Object lookupVar(Token name, Expr expr) {
 		Integer depth = localVarDepths.get(expr);
 		if (depth == null) {
 			return globals.get(name);
@@ -302,6 +303,11 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitThisExpr(Expr.This expr) {
+		return lookupVar(expr.kw, expr);
+	}
+
+	@Override
 	public Object visitUnaryExpr(Expr.Unary unary) {
 		Object right = evaluate(unary.right);
 		return switch (unary.operator.getValue()) {
@@ -316,7 +322,7 @@ public class Interpreter
 
 	@Override
 	public Object visitVariableExpr(Expr.Variable variable) {
-		return lookupVar((IdentifierToken) variable.name, variable);
+		return lookupVar(variable.name, variable);
 	}
 
 	@Override

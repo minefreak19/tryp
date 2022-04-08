@@ -5,6 +5,12 @@ import me.minefreak19.tryp.tree.Stmt;
 import java.util.List;
 
 public record TrypProc(Stmt.ProcDecl declaration, Environment closure) implements TrypCallable {
+	public TrypProc bind(TrypInstance instance) {
+		var env = new Environment(closure);
+		env.define("this", instance);
+		return new TrypProc(declaration, env);
+	}
+
 	@Override
 	public int arity() {
 		return declaration.params.size();

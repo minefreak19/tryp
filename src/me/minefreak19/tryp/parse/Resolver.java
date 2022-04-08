@@ -1,6 +1,7 @@
 package me.minefreak19.tryp.parse;
 
 import me.minefreak19.tryp.eval.Interpreter;
+import me.minefreak19.tryp.lex.token.KeywordToken;
 import me.minefreak19.tryp.lex.token.Token;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
@@ -23,6 +24,12 @@ public final class Resolver
 		public boolean defined = false;
 		public boolean used = false;
 		public Token name;
+
+		public Var(boolean defined, boolean used, Token name) {
+			this.defined = defined;
+			this.used = used;
+			this.name = name;
+		}
 
 		public Var(Token name) {
 			this.name = name;
@@ -185,6 +192,12 @@ public final class Resolver
 	}
 
 	@Override
+	public Void visitThisExpr(Expr.This expr) {
+		resolveLocal(expr, expr.kw);
+		return null;
+	}
+
+	@Override
 	public Void visitUnaryExpr(Expr.Unary expr) {
 		resolve(expr.right);
 		return null;
@@ -217,10 +230,16 @@ public final class Resolver
 		declare(stmt.name);
 		define(stmt.name);
 
+		beginScope();
+		scopes.peek().put("this", new Var(true, true, new KeywordToken(null, "this")));
+
 		for (Stmt.ProcDecl method : stmt.methods) {
 			ProcType type = ProcType.METHOD;
 			resolveFunction(method, type);
 		}
+
+		endScope();
+
 		return null;
 	}
 
