@@ -15,6 +15,7 @@ public enum Keyword {
 	RETURN("return"),
 	FOR("for"),
 	PRINT("print"),
+	CLASS("class"),
 	;
 
 	static Map<String, Keyword> byText;

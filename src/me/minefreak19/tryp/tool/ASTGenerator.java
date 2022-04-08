@@ -14,16 +14,19 @@ public class ASTGenerator {
 				"Assign   : Token name, Expr value",
 				"Binary   : Expr left, OpToken operator, Expr right",
 				"Call     : Expr callee, OpToken paren, List<Expr> args",
+				"Get      : Expr object, IdentifierToken name",
 				"Grouping : Expr expression",
 				"Lambda   : OpToken lambda, List<Token> params, List<Stmt> body",
 				"Literal  : Object value",
 				"Logical  : Expr left, OpToken operator, Expr right",
+				"Set      : Expr object, IdentifierToken name, Expr value",
 				"Unary    : OpToken operator, Expr right",
 				"Variable : Token name"
 		));
 
 		defineAST(outDir, "Stmt", Arrays.asList(
 				"Block      : List<Stmt> statements",
+				"Class      : IdentifierToken name, List<Stmt.ProcDecl> methods",
 				"Expression : Expr expr",
 				"If         : Expr condition, Stmt thenBranch," +
 						" Stmt elseBranch",

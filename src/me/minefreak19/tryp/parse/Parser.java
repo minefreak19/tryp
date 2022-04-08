@@ -55,6 +55,7 @@ public final class Parser {
 		try {
 			if (match(VAR)) return varDecl();
 			if (match(PROC)) return procDecl();
+			if (match(CLASS)) return classDecl();
 
 			return statement();
 		} catch (SyntaxException exception) {
@@ -98,6 +99,19 @@ public final class Parser {
 		List<Stmt> body = blockStatement();
 
 		return new Stmt.ProcDecl(name, params, body);
+	}
+
+	private Stmt classDecl() {
+		var name = expect(IdentifierToken.class);
+
+		expect(OPEN_CURLY);
+		var methods = new ArrayList<Stmt.ProcDecl>();
+		while (!check(CLOSE_CURLY) && !atEnd()) {
+			methods.add((Stmt.ProcDecl) procDecl());
+		}
+		expect(CLOSE_CURLY);
+
+		return new Stmt.Class(name, methods);
 	}
 
 	/**
@@ -311,7 +325,7 @@ public final class Parser {
 
 	// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
 	private Expr assignment() {
-		// delegate to equality() if there's no `<-` after that
+		// delegate to logicalOr() if there's no `<-` after that
 		Expr expr = logicalOr();
 
 		if (match(LEFT_ARROW)) {
@@ -319,6 +333,8 @@ public final class Parser {
 			Expr value = assignment();
 			if (expr instanceof Expr.Variable varExpr) {
 				return new Expr.Assign(varExpr.name, value);
+			} else if (expr instanceof Expr.Get get) {
+				return new Expr.Set(get.object, get.name, value);
 			}
 
 			throw new CompilerError()
@@ -405,21 +421,31 @@ public final class Parser {
 	}
 
 	private Expr call() {
-		Expr name = primary();
-		if (!check(OPEN_PAREN)) {
-			return name;
-		}
-		var paren = (OpToken) expect(OPEN_PAREN);
-		List<Expr> args;
-		if (!check(CLOSE_PAREN)) {
-			args = procArgs();
-		} else {
-			args = new ArrayList<>(0);
+		Expr expr = primary();
+
+		while (true) {
+			if (check(OPEN_PAREN)) {
+				var paren = (OpToken) expect(OPEN_PAREN);
+				List<Expr> args;
+				if (!check(CLOSE_PAREN)) {
+					args = procArgs();
+				} else {
+					args = new ArrayList<>(0);
+				}
+
+				expect(CLOSE_PAREN);
+
+				return new Expr.Call(expr, paren, args);
+			} else if (check(DOT)) {
+				advance();
+				var name = expect(IdentifierToken.class);
+				expr = new Expr.Get(expr, name);
+			} else {
+				break;
+			}
 		}
 
-		expect(CLOSE_PAREN);
-
-		return new Expr.Call(name, paren, args);
+		return expr;
 	}
 
 	private Expr primary() {

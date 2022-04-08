@@ -33,6 +33,7 @@ public final class Resolver
 		NONE,
 		PROC,
 		LAMBDA,
+		METHOD,
 	}
 
 	public Resolver(Interpreter interpreter) {
@@ -98,9 +99,9 @@ public final class Resolver
 		}
 	}
 
-	private void resolveFunction(Stmt.ProcDecl proc) {
+	private void resolveFunction(Stmt.ProcDecl proc, ProcType type) {
 		var prevProc = currentProc;
-		currentProc = ProcType.PROC;
+		currentProc = type;
 		beginScope();
 		for (Token param : proc.params) {
 			declare(param);
@@ -131,6 +132,12 @@ public final class Resolver
 		for (Expr arg : expr.args) {
 			resolve(arg);
 		}
+		return null;
+	}
+
+	@Override
+	public Void visitGetExpr(Expr.Get expr) {
+		resolve(expr.object);
 		return null;
 	}
 
@@ -170,6 +177,14 @@ public final class Resolver
 	}
 
 	@Override
+	public Void visitSetExpr(Expr.Set expr) {
+		// resolution of fields is done dynamically.
+		resolve(expr.object);
+		resolve(expr.value);
+		return null;
+	}
+
+	@Override
 	public Void visitUnaryExpr(Expr.Unary expr) {
 		resolve(expr.right);
 		return null;
@@ -178,6 +193,7 @@ public final class Resolver
 	@Override
 	public Void visitVariableExpr(Expr.Variable expr) {
 		if (!scopes.empty()
+				    && scopes.peek().containsKey(expr.name.getText())
 				    && !scopes.peek().get(expr.name.getText()).defined) {
 			new CompilerError()
 					.error(expr.name.getLoc(), "Can't read local variable in its own initializer.")
@@ -193,6 +209,18 @@ public final class Resolver
 		beginScope();
 		resolve(stmt.statements);
 		endScope();
+		return null;
+	}
+
+	@Override
+	public Void visitClassStmt(Stmt.Class stmt) {
+		declare(stmt.name);
+		define(stmt.name);
+
+		for (Stmt.ProcDecl method : stmt.methods) {
+			ProcType type = ProcType.METHOD;
+			resolveFunction(method, type);
+		}
 		return null;
 	}
 
@@ -221,7 +249,7 @@ public final class Resolver
 		declare(stmt.name);
 		define(stmt.name);
 
-		resolveFunction(stmt);
+		resolveFunction(stmt, ProcType.PROC);
 		return null;
 	}
 

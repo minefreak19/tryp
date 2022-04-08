@@ -9,10 +9,12 @@ public abstract class Expr {
 		R visitAssignExpr(Assign expr);
 		R visitBinaryExpr(Binary expr);
 		R visitCallExpr(Call expr);
+		R visitGetExpr(Get expr);
 		R visitGroupingExpr(Grouping expr);
 		R visitLambdaExpr(Lambda expr);
 		R visitLiteralExpr(Literal expr);
 		R visitLogicalExpr(Logical expr);
+		R visitSetExpr(Set expr);
 		R visitUnaryExpr(Unary expr);
 		R visitVariableExpr(Variable expr);
 	}
@@ -64,6 +66,21 @@ public abstract class Expr {
 		public final Expr callee;
 		public final OpToken paren;
 		public final List<Expr> args;
+	}
+
+	public static class Get extends Expr {
+		public Get(Expr object, IdentifierToken name) {
+			this.object = object;
+			this.name = name;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitGetExpr(this);
+		}
+
+		public final Expr object;
+		public final IdentifierToken name;
 	}
 
 	public static class Grouping extends Expr {
@@ -124,6 +141,23 @@ public abstract class Expr {
 		public final Expr left;
 		public final OpToken operator;
 		public final Expr right;
+	}
+
+	public static class Set extends Expr {
+		public Set(Expr object, IdentifierToken name, Expr value) {
+			this.object = object;
+			this.name = name;
+			this.value = value;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitSetExpr(this);
+		}
+
+		public final Expr object;
+		public final IdentifierToken name;
+		public final Expr value;
 	}
 
 	public static class Unary extends Expr {

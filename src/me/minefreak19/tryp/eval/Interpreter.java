@@ -246,6 +246,16 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitGetExpr(Expr.Get expr) {
+		Object object = evaluate(expr.object);
+		if (object instanceof TrypInstance instance) {
+			return instance.get(expr.name);
+		}
+
+		throw new RuntimeError(expr.name, "Trying to access property of non-instance");
+	}
+
+	@Override
 	public Object visitGroupingExpr(Expr.Grouping grouping) {
 		return evaluate(grouping.expression);
 	}
@@ -279,6 +289,19 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitSetExpr(Expr.Set expr) {
+		Object object = evaluate(expr.object);
+
+		if (!(object instanceof TrypInstance instance)) {
+			throw new RuntimeError(expr.name, "Only instances can have fields.");
+		}
+
+		Object value = evaluate(expr.value);
+		instance.set(expr.name, value);
+		return value;
+	}
+
+	@Override
 	public Object visitUnaryExpr(Expr.Unary unary) {
 		Object right = evaluate(unary.right);
 		return switch (unary.operator.getValue()) {
@@ -299,6 +322,19 @@ public class Interpreter
 	@Override
 	public Void visitBlockStmt(Stmt.Block block) {
 		executeBlock(block.statements, new Environment(environment));
+		return null;
+	}
+
+	@Override
+	public Void visitClassStmt(Stmt.Class stmt) {
+		environment.define(stmt.name.getText(), null);
+		var methods = new HashMap<String, TrypProc>();
+		for (var method : stmt.methods) {
+			methods.put(method.name.getText(), new TrypProc(method, environment));
+		}
+
+		var klass = new TrypClass(stmt.name.getText(), methods);
+		environment.assign(stmt.name, klass);
 		return null;
 	}
 
