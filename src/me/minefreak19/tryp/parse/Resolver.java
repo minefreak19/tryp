@@ -293,6 +293,7 @@ public final class Resolver
 					.error(stmt.kw.getLoc(), "Can't return from outside a proc.")
 					.report();
 		}
+
 		// we don't call endScope() here because resolution
 		// has nothing to do with the control flow
 		// we only care about resolving every variable referred to
