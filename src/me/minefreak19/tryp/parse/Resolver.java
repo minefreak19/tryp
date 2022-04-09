@@ -46,7 +46,7 @@ public final class Resolver
 	}
 
 	private enum ClassType {
-		NONE, CLASS,
+		NONE, CLASS, SUBCLASS,
 	}
 
 	public Resolver(Interpreter interpreter) {
@@ -199,6 +199,11 @@ public final class Resolver
 
 	@Override
 	public Void visitSuperExpr(Expr.Super expr) {
+		if (this.currentClass != ClassType.SUBCLASS) {
+			new CompilerError()
+					.error(expr.kw.getLoc(), "Can't use `super` outside a subclass.")
+					.report();
+		}
 		resolveLocal(expr, expr.kw);
 		return null;
 	}
@@ -261,7 +266,7 @@ public final class Resolver
 		}
 
 		var prevClassType = this.currentClass;
-		this.currentClass = ClassType.CLASS;
+		this.currentClass = stmt.superclass == null ? ClassType.CLASS : ClassType.SUBCLASS;
 		beginScope();
 		scopes.peek().put("this", new Var(true, true, new KeywordToken(null, "this")));
 
