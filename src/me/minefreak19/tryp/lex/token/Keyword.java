@@ -14,7 +14,6 @@ public enum Keyword {
 	WHILE("while"),
 	RETURN("return"),
 	FOR("for"),
-	PRINT("print"),
 	CLASS("class"),
 	THIS("this"),
 	STATIC("static"),

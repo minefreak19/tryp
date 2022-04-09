@@ -143,7 +143,6 @@ public final class Parser {
 	}
 
 	private Stmt statement() {
-		if (match(PRINT)) return printStatement();
 		if (match(OPEN_CURLY)) return new Stmt.Block(blockStatement());
 		if (match(IF)) return ifStatement();
 		if (match(WHILE)) return whileStatement();
@@ -151,14 +150,6 @@ public final class Parser {
 		if (match(RETURN)) return returnStatement();
 
 		return expressionStatement();
-	}
-
-	private Stmt printStatement() {
-		assert previous() instanceof KeywordToken kwTok && kwTok.getValue() == PRINT;
-
-		Expr value = expression();
-		expect(SEMICOLON);
-		return new Stmt.Print(value);
 	}
 
 	/**

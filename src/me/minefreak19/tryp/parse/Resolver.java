@@ -301,12 +301,6 @@ public final class Resolver
 	}
 
 	@Override
-	public Void visitPrintStmt(Stmt.Print stmt) {
-		resolve(stmt.expr);
-		return null;
-	}
-
-	@Override
 	public Void visitProcDeclStmt(Stmt.ProcDecl stmt) {
 		if (stmt.isStatic) {
 			// If we were in a class, this would have been handled by visitClassStmt.

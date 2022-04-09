@@ -34,7 +34,6 @@ public class ASTGenerator {
 				"Expression : Expr expr",
 				"If         : Expr condition, Stmt thenBranch," +
 						" Stmt elseBranch",
-				"Print      : Expr expr",
 				"ProcDecl   : Token name, List<Token> params, List<Stmt> body, boolean isStatic",
 				"Return     : Token kw, Expr value",
 				"Var        : Token name, Expr initializer",

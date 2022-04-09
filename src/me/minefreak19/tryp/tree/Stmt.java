@@ -10,7 +10,6 @@ public abstract class Stmt {
 		R visitClassStmt(Class stmt);
 		R visitExpressionStmt(Expression stmt);
 		R visitIfStmt(If stmt);
-		R visitPrintStmt(Print stmt);
 		R visitProcDeclStmt(ProcDecl stmt);
 		R visitReturnStmt(Return stmt);
 		R visitVarStmt(Var stmt);
@@ -75,19 +74,6 @@ public abstract class Stmt {
 		public final Expr condition;
 		public final Stmt thenBranch;
 		public final Stmt elseBranch;
-	}
-
-	public static class Print extends Stmt {
-		public Print(Expr expr) {
-			this.expr = expr;
-		}
-
-		@Override
-		public <R> R accept(Visitor<R> visitor) {
-			return visitor.visitPrintStmt(this);
-		}
-
-		public final Expr expr;
 	}
 
 	public static class ProcDecl extends Stmt {

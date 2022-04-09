@@ -83,6 +83,24 @@ public class Interpreter
 	}
 
 	private void defineNatives() {
+		globals.define("print", new TrypCallable() {
+			@Override
+			public int arity() {
+				return 1;
+			}
+
+			@Override
+			public Object call(Interpreter interpreter, List<Object> args) {
+				System.out.println(Interpreter.toString(args.get(0)));
+				return null;
+			}
+
+			@Override
+			public String toString() {
+				return "<native>";
+			}
+		});
+
 		globals.define("clock", new TrypCallable() {
 			@Override
 			public int arity() {
@@ -399,13 +417,6 @@ public class Interpreter
 		} else if (ifStmt.elseBranch != null) {
 			execute(ifStmt.elseBranch);
 		}
-		return null;
-	}
-
-	@Override
-	public Void visitPrintStmt(Stmt.Print print) {
-		Object value = evaluate(print.expr);
-		System.out.println(toString(value));
 		return null;
 	}
 
