@@ -55,6 +55,7 @@ public final class Parser {
 		try {
 			if (match(VAR)) return varDecl();
 			if (match(PROC)) return procDecl();
+			if (match(CLASS)) return classDecl();
 
 			return statement();
 		} catch (SyntaxException exception) {
@@ -83,6 +84,7 @@ public final class Parser {
 	 * expects proc keyword to be already consumed
 	 */
 	private Stmt procDecl() {
+		boolean isStatic = match(STATIC);
 		var name = expect(IdentifierToken.class);
 		expect(OPEN_PAREN);
 
@@ -97,7 +99,33 @@ public final class Parser {
 		expect(OPEN_CURLY);
 		List<Stmt> body = blockStatement();
 
-		return new Stmt.ProcDecl(name, params, body);
+		return new Stmt.ProcDecl(name, params, body, isStatic);
+	}
+
+	private Stmt classDecl() {
+		var name = expect(IdentifierToken.class);
+
+		Expr.Variable superclass = null;
+		if (match(EXTENDS)) {
+			superclass = new Expr.Variable(expect(IdentifierToken.class));
+		}
+
+		expect(OPEN_CURLY);
+		var methods = new ArrayList<Stmt.ProcDecl>();
+		while (!check(CLOSE_CURLY) && !atEnd()) {
+			var method = (Stmt.ProcDecl) procDecl();
+			if (method.name.getText().equals(name.getText())) {
+				// Constructor => special name
+				method = new Stmt.ProcDecl(
+						new IdentifierToken(method.name.getLoc(), "$init"),
+						method.params, method.body, false
+				);
+			}
+			methods.add(method);
+		}
+		expect(CLOSE_CURLY);
+
+		return new Stmt.Class(name, superclass, methods);
 	}
 
 	/**
@@ -311,7 +339,7 @@ public final class Parser {
 
 	// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
 	private Expr assignment() {
-		// delegate to equality() if there's no `<-` after that
+		// delegate to logicalOr() if there's no `<-` after that
 		Expr expr = logicalOr();
 
 		if (match(LEFT_ARROW)) {
@@ -319,6 +347,8 @@ public final class Parser {
 			Expr value = assignment();
 			if (expr instanceof Expr.Variable varExpr) {
 				return new Expr.Assign(varExpr.name, value);
+			} else if (expr instanceof Expr.Get get) {
+				return new Expr.Set(get.object, get.name, value);
 			}
 
 			throw new CompilerError()
@@ -405,35 +435,54 @@ public final class Parser {
 	}
 
 	private Expr call() {
-		Expr name = primary();
-		if (!check(OPEN_PAREN)) {
-			return name;
-		}
-		var paren = (OpToken) expect(OPEN_PAREN);
-		List<Expr> args;
-		if (!check(CLOSE_PAREN)) {
-			args = procArgs();
-		} else {
-			args = new ArrayList<>(0);
+		Expr expr = primary();
+
+		while (true) {
+			if (check(OPEN_PAREN)) {
+				var paren = (OpToken) expect(OPEN_PAREN);
+				List<Expr> args;
+				if (!check(CLOSE_PAREN)) {
+					args = procArgs();
+				} else {
+					args = new ArrayList<>(0);
+				}
+
+				expect(CLOSE_PAREN);
+
+				// TODO: this needs to modify `expr` instead of returning
+				return new Expr.Call(expr, paren, args);
+			} else if (check(DOT)) {
+				advance();
+				var name = expect(IdentifierToken.class);
+				expr = new Expr.Get(expr, name);
+			} else {
+				break;
+			}
 		}
 
-		expect(CLOSE_PAREN);
-
-		return new Expr.Call(name, paren, args);
+		return expr;
 	}
 
 	private Expr primary() {
 		var token = advance();
 		return switch (token) {
 
-			case KeywordToken kwTok -> new Expr.Literal(switch (kwTok.getValue()) {
-				case NIL -> null;
-				case TRUE -> true;
-				case FALSE -> false;
+			case KeywordToken kwTok -> switch (kwTok.getValue()) {
+				case NIL -> new Expr.Literal(null);
+				case TRUE -> new Expr.Literal(true);
+				case FALSE -> new Expr.Literal(false);
+
+				case THIS -> new Expr.This(kwTok);
+				case SUPER -> {
+					expect(DOT);
+					var method = expect(IdentifierToken.class);
+					yield new Expr.Super(kwTok, method);
+				}
+
 				default -> throw new CompilerError()
 						.badToken(token, "Unexpected keyword here")
 						.report();
-			});
+			};
 
 			case NumberToken intTok -> new Expr.Literal(intTok.getValue());
 			case StringToken strTok -> new Expr.Literal(strTok.getValue());

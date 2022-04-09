@@ -1,6 +1,7 @@
 package me.minefreak19.tryp.parse;
 
 import me.minefreak19.tryp.eval.Interpreter;
+import me.minefreak19.tryp.lex.token.KeywordToken;
 import me.minefreak19.tryp.lex.token.Token;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
@@ -18,11 +19,18 @@ public final class Resolver
 	// stack<map<string name, boolean defined>>
 	private final Stack<Map<String, Var>> scopes = new Stack<>();
 	private ProcType currentProc = ProcType.NONE;
+	private ClassType currentClass = ClassType.NONE;
 
 	private static class Var {
 		public boolean defined = false;
 		public boolean used = false;
 		public Token name;
+
+		public Var(boolean defined, boolean used, Token name) {
+			this.defined = defined;
+			this.used = used;
+			this.name = name;
+		}
 
 		public Var(Token name) {
 			this.name = name;
@@ -33,6 +41,12 @@ public final class Resolver
 		NONE,
 		PROC,
 		LAMBDA,
+		METHOD,
+		CONSTRUCTOR,
+	}
+
+	private enum ClassType {
+		NONE, CLASS, SUBCLASS,
 	}
 
 	public Resolver(Interpreter interpreter) {
@@ -98,9 +112,9 @@ public final class Resolver
 		}
 	}
 
-	private void resolveFunction(Stmt.ProcDecl proc) {
+	private void resolveFunction(Stmt.ProcDecl proc, ProcType type) {
 		var prevProc = currentProc;
-		currentProc = ProcType.PROC;
+		currentProc = type;
 		beginScope();
 		for (Token param : proc.params) {
 			declare(param);
@@ -131,6 +145,12 @@ public final class Resolver
 		for (Expr arg : expr.args) {
 			resolve(arg);
 		}
+		return null;
+	}
+
+	@Override
+	public Void visitGetExpr(Expr.Get expr) {
+		resolve(expr.object);
 		return null;
 	}
 
@@ -170,6 +190,36 @@ public final class Resolver
 	}
 
 	@Override
+	public Void visitSetExpr(Expr.Set expr) {
+		// resolution of fields is done dynamically.
+		resolve(expr.object);
+		resolve(expr.value);
+		return null;
+	}
+
+	@Override
+	public Void visitSuperExpr(Expr.Super expr) {
+		if (this.currentClass != ClassType.SUBCLASS) {
+			new CompilerError()
+					.error(expr.kw.getLoc(), "Can't use `super` outside a subclass.")
+					.report();
+		}
+		resolveLocal(expr, expr.kw);
+		return null;
+	}
+
+	@Override
+	public Void visitThisExpr(Expr.This expr) {
+		if (this.currentClass == ClassType.NONE) {
+			new CompilerError()
+					.badToken(expr.kw, "Can't use `this` outside a class")
+					.report();
+		}
+		resolveLocal(expr, expr.kw);
+		return null;
+	}
+
+	@Override
 	public Void visitUnaryExpr(Expr.Unary expr) {
 		resolve(expr.right);
 		return null;
@@ -178,6 +228,7 @@ public final class Resolver
 	@Override
 	public Void visitVariableExpr(Expr.Variable expr) {
 		if (!scopes.empty()
+				    && scopes.peek().containsKey(expr.name.getText())
 				    && !scopes.peek().get(expr.name.getText()).defined) {
 			new CompilerError()
 					.error(expr.name.getLoc(), "Can't read local variable in its own initializer.")
@@ -193,6 +244,45 @@ public final class Resolver
 		beginScope();
 		resolve(stmt.statements);
 		endScope();
+		return null;
+	}
+
+	@Override
+	public Void visitClassStmt(Stmt.Class stmt) {
+		declare(stmt.name);
+		define(stmt.name);
+
+		if (stmt.superclass != null) {
+			if (stmt.name.getText().equals(stmt.superclass.name.getText())) {
+				new CompilerError()
+						.error(stmt.superclass.name.getLoc(), "A class can't extend itself.")
+						.report();
+			}
+
+			beginScope();
+			scopes.peek().put("super", new Var(true, true, stmt.superclass.name));
+
+			resolve(stmt.superclass);
+		}
+
+		var prevClassType = this.currentClass;
+		this.currentClass = stmt.superclass == null ? ClassType.CLASS : ClassType.SUBCLASS;
+		beginScope();
+		scopes.peek().put("this", new Var(true, true, new KeywordToken(null, "this")));
+
+		for (Stmt.ProcDecl method : stmt.methods) {
+			ProcType type = ProcType.METHOD;
+			if (method.name.getText().equals("$init")) type = ProcType.CONSTRUCTOR;
+			resolveFunction(method, type);
+		}
+
+		if (stmt.superclass != null) {
+			endScope();
+		}
+
+		endScope();
+		this.currentClass = prevClassType;
+
 		return null;
 	}
 
@@ -218,21 +308,39 @@ public final class Resolver
 
 	@Override
 	public Void visitProcDeclStmt(Stmt.ProcDecl stmt) {
+		if (stmt.isStatic) {
+			// If we were in a class, this would have been handled by visitClassStmt.
+			// Since we're here, we can safely assume that we're not in a class,
+			//  without checking the currentClass field.
+			new CompilerError()
+					.error(stmt.name.getLoc(), "Can't have static methods outside class")
+					.report();
+		}
 		declare(stmt.name);
 		define(stmt.name);
 
-		resolveFunction(stmt);
+		resolveFunction(stmt, ProcType.PROC);
 		return null;
 	}
 
 	@Override
 	public Void visitReturnStmt(Stmt.Return stmt) {
-		if (stmt.value != null) resolve(stmt.value);
+		if (stmt.value != null) {
+			if (currentProc == ProcType.CONSTRUCTOR) {
+				new CompilerError()
+						.error(stmt.kw.getLoc(), "Can't return a value from a constructor.")
+						.report();
+			}
+
+			resolve(stmt.value);
+		}
+
 		if (currentProc == ProcType.NONE) {
 			new CompilerError()
 					.error(stmt.kw.getLoc(), "Can't return from outside a proc.")
 					.report();
 		}
+
 		// we don't call endScope() here because resolution
 		// has nothing to do with the control flow
 		// we only care about resolving every variable referred to

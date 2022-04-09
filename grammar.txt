@@ -2,11 +2,16 @@ program        → declaration* EOF;
 
 declaration    → varDecl
                | funDecl
+               | classDecl
                | statement ;
 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
-funDecl        → "proc" IDENTIFIER "(" funParams? ")" block ;
+funDecl        → "proc" proc
+classDecl      → "class" IDENTIFIER
+                 ("extends" IDENTIFIER)?
+                 "{" proc* "}" ;
 
+proc           → "static"? IDENTIFIER "(" funParams? ")" block ;
 funParams      → IDENTIFIER ("," IDENTIFIER)* ;
 
 statement      → exprStmt
@@ -37,7 +42,7 @@ expression     → lambdaExpr
 lambdaExpr     → "\" "(" funParams? ")" "->" block ;
 
 compound       → assignment ( (",") assignment )* ;
-assignment     → IDENTIFIER "<-" assignment
+assignment     → ( call "." )? IDENTIFIER "<-" assignment
                | logical_or ;
 
 logical_or     → logical_and ( "||" logical_and )* ;
@@ -49,8 +54,9 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
                | call ;
-call           → primary "(" funArgs? ")" ;
+call           → primary ( "(" funArgs? ")" | "." IDENTIFIER )* ;
 primary        → NUMBER | STRING | "true" | "false" | "nil"
+               | "this" | "super"
                | "(" expression ")"
                | IDENTIFIER ;
 

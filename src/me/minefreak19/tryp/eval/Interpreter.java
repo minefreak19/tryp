@@ -1,7 +1,9 @@
 package me.minefreak19.tryp.eval;
 
 import me.minefreak19.tryp.lex.token.IdentifierToken;
+import me.minefreak19.tryp.lex.token.KeywordToken;
 import me.minefreak19.tryp.lex.token.OpToken;
+import me.minefreak19.tryp.lex.token.Token;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
 
@@ -135,7 +137,7 @@ public class Interpreter
 		localVarDepths.put(expr, depth);
 	}
 
-	private Object lookupVar(IdentifierToken name, Expr expr) {
+	private Object lookupVar(Token name, Expr expr) {
 		Integer depth = localVarDepths.get(expr);
 		if (depth == null) {
 			return globals.get(name);
@@ -246,6 +248,16 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitGetExpr(Expr.Get expr) {
+		Object object = evaluate(expr.object);
+		if (object instanceof TrypInstance instance) {
+			return instance.get(expr.name);
+		}
+
+		throw new RuntimeError(expr.name, "Trying to access property of non-instance");
+	}
+
+	@Override
 	public Object visitGroupingExpr(Expr.Grouping grouping) {
 		return evaluate(grouping.expression);
 	}
@@ -255,7 +267,8 @@ public class Interpreter
 		var decl = new Stmt.ProcDecl(
 				new IdentifierToken(expr.lambda.getLoc(), "<lambda fn>"),
 				expr.params,
-				expr.body
+				expr.body,
+				false
 		);
 
 		return new TrypProc(decl, this.environment);
@@ -279,6 +292,42 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitSetExpr(Expr.Set expr) {
+		Object object = evaluate(expr.object);
+
+		if (!(object instanceof TrypInstance instance)) {
+			throw new RuntimeError(expr.name, "Only instances can have fields.");
+		}
+
+		Object value = evaluate(expr.value);
+		instance.set(expr.name, value);
+		return value;
+	}
+
+	@Override
+	public Object visitSuperExpr(Expr.Super expr) {
+		// safe cast, because type of superclass is checked at class declaration
+		int distance = localVarDepths.get(expr);
+		TrypClass superclass = (TrypClass) environment.getAt(distance, expr.kw);
+		TrypInstance self = (TrypInstance) environment.getAt(distance - 1,
+				new KeywordToken(null, "this"));
+
+		TrypProc method = superclass.findMethod(expr.method.getText());
+
+		if (method == null) {
+			throw new RuntimeError(expr.method,
+					"Undefined property `" + expr.method.getText() + "` of superclass.");
+		}
+
+		return method.bind(self);
+	}
+
+	@Override
+	public Object visitThisExpr(Expr.This expr) {
+		return lookupVar(expr.kw, expr);
+	}
+
+	@Override
 	public Object visitUnaryExpr(Expr.Unary unary) {
 		Object right = evaluate(unary.right);
 		return switch (unary.operator.getValue()) {
@@ -293,12 +342,47 @@ public class Interpreter
 
 	@Override
 	public Object visitVariableExpr(Expr.Variable variable) {
-		return lookupVar((IdentifierToken) variable.name, variable);
+		return lookupVar(variable.name, variable);
 	}
 
 	@Override
 	public Void visitBlockStmt(Stmt.Block block) {
 		executeBlock(block.statements, new Environment(environment));
+		return null;
+	}
+
+	@Override
+	public Void visitClassStmt(Stmt.Class stmt) {
+		Object superclass = null;
+		if (stmt.superclass != null) {
+			superclass = evaluate(stmt.superclass);
+
+			if (!(superclass instanceof TrypClass)) {
+				throw new RuntimeError(stmt.superclass.name, "Superclass must be a class.");
+			}
+		}
+
+		environment.define(stmt.name.getText(), null);
+
+		if (stmt.superclass != null) {
+			// create a separate environment within the class to hold `super`
+			environment = new Environment(environment);
+			environment.define("super", superclass);
+		}
+
+		var methods = new HashMap<String, TrypProc>();
+		for (var method : stmt.methods) {
+			methods.put(method.name.getText(), new TrypProc(method, environment));
+		}
+
+		var klass = new TrypClass(stmt.name.getText(), (TrypClass) superclass, methods);
+
+		if (superclass != null) {
+			// we created a separate environment within the class to hold `super`
+			environment = environment.getParent();
+		}
+
+		environment.assign(stmt.name, klass);
 		return null;
 	}
 
@@ -327,7 +411,7 @@ public class Interpreter
 
 	@Override
 	public Void visitProcDeclStmt(Stmt.ProcDecl stmt) {
-		environment.define(stmt.name.getText(), new TrypProc(stmt, this.environment));
+		environment.define(stmt.name.getText(), new TrypProc(stmt, this.environment, stmt.isStatic));
 
 		return null;
 	}

@@ -7,6 +7,7 @@ import java.util.*;
 public abstract class Stmt {
 	public interface Visitor<R> {
 		R visitBlockStmt(Block stmt);
+		R visitClassStmt(Class stmt);
 		R visitExpressionStmt(Expression stmt);
 		R visitIfStmt(If stmt);
 		R visitPrintStmt(Print stmt);
@@ -27,6 +28,23 @@ public abstract class Stmt {
 		}
 
 		public final List<Stmt> statements;
+	}
+
+	public static class Class extends Stmt {
+		public Class(IdentifierToken name, Expr.Variable superclass, List<Stmt.ProcDecl> methods) {
+			this.name = name;
+			this.superclass = superclass;
+			this.methods = methods;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitClassStmt(this);
+		}
+
+		public final IdentifierToken name;
+		public final Expr.Variable superclass;
+		public final List<Stmt.ProcDecl> methods;
 	}
 
 	public static class Expression extends Stmt {
@@ -73,10 +91,11 @@ public abstract class Stmt {
 	}
 
 	public static class ProcDecl extends Stmt {
-		public ProcDecl(Token name, List<Token> params, List<Stmt> body) {
+		public ProcDecl(Token name, List<Token> params, List<Stmt> body, boolean isStatic) {
 			this.name = name;
 			this.params = params;
 			this.body = body;
+			this.isStatic = isStatic;
 		}
 
 		@Override
@@ -87,6 +106,7 @@ public abstract class Stmt {
 		public final Token name;
 		public final List<Token> params;
 		public final List<Stmt> body;
+		public final boolean isStatic;
 	}
 
 	public static class Return extends Stmt {

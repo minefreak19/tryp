@@ -30,6 +30,7 @@ public enum Operator {
 	SEMICOLON(";"),
 	COMMA(","),
 	BACKSLASH("\\"),
+	DOT("."),
 	;
 
 	private static final Map<String, Operator> byText;
