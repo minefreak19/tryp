@@ -31,8 +31,9 @@ public abstract class Stmt {
 	}
 
 	public static class Class extends Stmt {
-		public Class(IdentifierToken name, List<Stmt.ProcDecl> methods) {
+		public Class(IdentifierToken name, Expr.Variable superclass, List<Stmt.ProcDecl> methods) {
 			this.name = name;
+			this.superclass = superclass;
 			this.methods = methods;
 		}
 
@@ -42,6 +43,7 @@ public abstract class Stmt {
 		}
 
 		public final IdentifierToken name;
+		public final Expr.Variable superclass;
 		public final List<Stmt.ProcDecl> methods;
 	}
 

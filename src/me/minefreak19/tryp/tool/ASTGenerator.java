@@ -20,6 +20,9 @@ public class ASTGenerator {
 				"Literal  : Object value",
 				"Logical  : Expr left, OpToken operator, Expr right",
 				"Set      : Expr object, IdentifierToken name, Expr value",
+				// Carrying around a reference to the method being called (super.m())
+				//  is useful because the method needs to be bound to the *current* object
+				"Super    : KeywordToken kw, IdentifierToken method",
 				"This     : KeywordToken kw",
 				"Unary    : OpToken operator, Expr right",
 				"Variable : Token name"
@@ -27,7 +30,7 @@ public class ASTGenerator {
 
 		defineAST(outDir, "Stmt", Arrays.asList(
 				"Block      : List<Stmt> statements",
-				"Class      : IdentifierToken name, List<Stmt.ProcDecl> methods",
+				"Class      : IdentifierToken name, Expr.Variable superclass, List<Stmt.ProcDecl> methods",
 				"Expression : Expr expr",
 				"If         : Expr condition, Stmt thenBranch," +
 						" Stmt elseBranch",

@@ -18,6 +18,8 @@ public enum Keyword {
 	CLASS("class"),
 	THIS("this"),
 	STATIC("static"),
+	EXTENDS("extends"),
+	SUPER("super"),
 	;
 
 	static Map<String, Keyword> byText;

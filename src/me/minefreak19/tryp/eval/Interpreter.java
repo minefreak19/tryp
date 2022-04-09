@@ -1,6 +1,7 @@
 package me.minefreak19.tryp.eval;
 
 import me.minefreak19.tryp.lex.token.IdentifierToken;
+import me.minefreak19.tryp.lex.token.KeywordToken;
 import me.minefreak19.tryp.lex.token.OpToken;
 import me.minefreak19.tryp.lex.token.Token;
 import me.minefreak19.tryp.tree.Expr;
@@ -304,6 +305,24 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitSuperExpr(Expr.Super expr) {
+		// safe cast, because type of superclass is checked at class declaration
+		int distance = localVarDepths.get(expr);
+		TrypClass superclass = (TrypClass) environment.getAt(distance, expr.kw);
+		TrypInstance self = (TrypInstance) environment.getAt(distance - 1,
+				new KeywordToken(null, "this"));
+
+		TrypProc method = superclass.findMethod(expr.method.getText());
+
+		if (method == null) {
+			throw new RuntimeError(expr.method,
+					"Undefined property `" + expr.method.getText() + "` of superclass.");
+		}
+
+		return method.bind(self);
+	}
+
+	@Override
 	public Object visitThisExpr(Expr.This expr) {
 		return lookupVar(expr.kw, expr);
 	}
@@ -334,13 +353,35 @@ public class Interpreter
 
 	@Override
 	public Void visitClassStmt(Stmt.Class stmt) {
+		Object superclass = null;
+		if (stmt.superclass != null) {
+			superclass = evaluate(stmt.superclass);
+
+			if (!(superclass instanceof TrypClass)) {
+				throw new RuntimeError(stmt.superclass.name, "Superclass must be a class.");
+			}
+		}
+
 		environment.define(stmt.name.getText(), null);
+
+		if (stmt.superclass != null) {
+			// create a separate environment within the class to hold `super`
+			environment = new Environment(environment);
+			environment.define("super", superclass);
+		}
+
 		var methods = new HashMap<String, TrypProc>();
 		for (var method : stmt.methods) {
 			methods.put(method.name.getText(), new TrypProc(method, environment));
 		}
 
-		var klass = new TrypClass(stmt.name.getText(), methods);
+		var klass = new TrypClass(stmt.name.getText(), (TrypClass) superclass, methods);
+
+		if (superclass != null) {
+			// we created a separate environment within the class to hold `super`
+			environment = environment.getParent();
+		}
+
 		environment.assign(stmt.name, klass);
 		return null;
 	}

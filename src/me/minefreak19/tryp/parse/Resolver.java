@@ -198,6 +198,12 @@ public final class Resolver
 	}
 
 	@Override
+	public Void visitSuperExpr(Expr.Super expr) {
+		resolveLocal(expr, expr.kw);
+		return null;
+	}
+
+	@Override
 	public Void visitThisExpr(Expr.This expr) {
 		if (this.currentClass == ClassType.NONE) {
 			new CompilerError()
@@ -241,6 +247,19 @@ public final class Resolver
 		declare(stmt.name);
 		define(stmt.name);
 
+		if (stmt.superclass != null) {
+			if (stmt.name.getText().equals(stmt.superclass.name.getText())) {
+				new CompilerError()
+						.error(stmt.superclass.name.getLoc(), "A class can't extend itself.")
+						.report();
+			}
+
+			beginScope();
+			scopes.peek().put("super", new Var(true, true, stmt.superclass.name));
+
+			resolve(stmt.superclass);
+		}
+
 		var prevClassType = this.currentClass;
 		this.currentClass = ClassType.CLASS;
 		beginScope();
@@ -250,6 +269,10 @@ public final class Resolver
 			ProcType type = ProcType.METHOD;
 			if (method.name.getText().equals("$init")) type = ProcType.CONSTRUCTOR;
 			resolveFunction(method, type);
+		}
+
+		if (stmt.superclass != null) {
+			endScope();
 		}
 
 		endScope();

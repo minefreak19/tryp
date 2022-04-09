@@ -105,6 +105,11 @@ public final class Parser {
 	private Stmt classDecl() {
 		var name = expect(IdentifierToken.class);
 
+		Expr.Variable superclass = null;
+		if (match(EXTENDS)) {
+			superclass = new Expr.Variable(expect(IdentifierToken.class));
+		}
+
 		expect(OPEN_CURLY);
 		var methods = new ArrayList<Stmt.ProcDecl>();
 		while (!check(CLOSE_CURLY) && !atEnd()) {
@@ -120,7 +125,7 @@ public final class Parser {
 		}
 		expect(CLOSE_CURLY);
 
-		return new Stmt.Class(name, methods);
+		return new Stmt.Class(name, superclass, methods);
 	}
 
 	/**
@@ -444,6 +449,7 @@ public final class Parser {
 
 				expect(CLOSE_PAREN);
 
+				// TODO: this needs to modify `expr` instead of returning
 				return new Expr.Call(expr, paren, args);
 			} else if (check(DOT)) {
 				advance();
@@ -467,6 +473,11 @@ public final class Parser {
 				case FALSE -> new Expr.Literal(false);
 
 				case THIS -> new Expr.This(kwTok);
+				case SUPER -> {
+					expect(DOT);
+					var method = expect(IdentifierToken.class);
+					yield new Expr.Super(kwTok, method);
+				}
 
 				default -> throw new CompilerError()
 						.badToken(token, "Unexpected keyword here")

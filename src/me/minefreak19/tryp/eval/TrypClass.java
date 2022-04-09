@@ -8,8 +8,9 @@ import java.util.Objects;
 public final class TrypClass extends TrypInstance implements TrypCallable {
 	private final String name;
 	private final Map<String, TrypProc> methods;
+	private final TrypClass superclass;
 
-	public TrypClass(String name, Map<String, TrypProc> methods) {
+	public TrypClass(String name, TrypClass superclass, Map<String, TrypProc> methods) {
 		{
 			String mName = "$static$" + name;
 //			var mMethods
@@ -24,22 +25,32 @@ public final class TrypClass extends TrypInstance implements TrypCallable {
 				}
 			}
 
-			this.klass = new TrypClass(mName, mMethods, 0);
+			this.klass = new TrypClass(mName, superclass, mMethods, 0);
 		}
 
 		this.name = name;
+		this.superclass = superclass;
 		this.methods = methods;
 	}
 
 	// Avoids the metaclass logic of the public constructor.
 	@SuppressWarnings("unused")
-	private TrypClass(String name, Map<String, TrypProc> methods, int dummy) {
+	private TrypClass(String name, TrypClass superclass, Map<String, TrypProc> methods, int dummy) {
 		this.name = name;
+		this.superclass = superclass;
 		this.methods = methods;
 	}
 
 	public TrypProc findMethod(String name) {
-		return methods.get(name);
+		if (methods.containsKey(name)) {
+			return methods.get(name);
+		}
+
+		if (superclass != null) {
+			return superclass.findMethod(name);
+		}
+
+		return null;
 	}
 
 	@Override
