@@ -117,6 +117,32 @@ public class Interpreter
 				return "<native>";
 			}
 		});
+
+		globals.define("prettyPrint", new TrypCallable() {
+			@Override
+			public int arity() {
+				return 1;
+			}
+
+			@Override
+			public Object call(Interpreter interpreter, List<Object> args) {
+				Object value = args.get(0);
+				String str = switch (value) {
+					// format with commas, trim trailing zeroes (and decimal point)
+					case Double d -> String.format("%,f", d).replaceAll("\\.?0+$", "");
+					case String s -> s;
+
+					default -> stringify(value);
+				};
+				System.out.println(str);
+				return null;
+			}
+
+			@Override
+			public String toString() {
+				return "<native>";
+			}
+		});
 	}
 
 	public void interpret(List<Stmt> program) {
