@@ -84,6 +84,7 @@ public final class Parser {
 	 * expects proc keyword to be already consumed
 	 */
 	private Stmt procDecl() {
+		boolean isStatic = match(STATIC);
 		var name = expect(IdentifierToken.class);
 		expect(OPEN_PAREN);
 
@@ -98,7 +99,7 @@ public final class Parser {
 		expect(OPEN_CURLY);
 		List<Stmt> body = blockStatement();
 
-		return new Stmt.ProcDecl(name, params, body);
+		return new Stmt.ProcDecl(name, params, body, isStatic);
 	}
 
 	private Stmt classDecl() {
@@ -112,7 +113,7 @@ public final class Parser {
 				// Constructor => special name
 				method = new Stmt.ProcDecl(
 						new IdentifierToken(method.name.getLoc(), "$init"),
-						method.params, method.body
+						method.params, method.body, false
 				);
 			}
 			methods.add(method);

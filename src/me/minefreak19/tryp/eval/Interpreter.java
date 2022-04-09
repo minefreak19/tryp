@@ -266,7 +266,8 @@ public class Interpreter
 		var decl = new Stmt.ProcDecl(
 				new IdentifierToken(expr.lambda.getLoc(), "<lambda fn>"),
 				expr.params,
-				expr.body
+				expr.body,
+				false
 		);
 
 		return new TrypProc(decl, this.environment);
@@ -369,7 +370,7 @@ public class Interpreter
 
 	@Override
 	public Void visitProcDeclStmt(Stmt.ProcDecl stmt) {
-		environment.define(stmt.name.getText(), new TrypProc(stmt, this.environment));
+		environment.define(stmt.name.getText(), new TrypProc(stmt, this.environment, stmt.isStatic));
 
 		return null;
 	}

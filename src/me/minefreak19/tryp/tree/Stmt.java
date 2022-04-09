@@ -89,10 +89,11 @@ public abstract class Stmt {
 	}
 
 	public static class ProcDecl extends Stmt {
-		public ProcDecl(Token name, List<Token> params, List<Stmt> body) {
+		public ProcDecl(Token name, List<Token> params, List<Stmt> body, boolean isStatic) {
 			this.name = name;
 			this.params = params;
 			this.body = body;
+			this.isStatic = isStatic;
 		}
 
 		@Override
@@ -103,6 +104,7 @@ public abstract class Stmt {
 		public final Token name;
 		public final List<Token> params;
 		public final List<Stmt> body;
+		public final boolean isStatic;
 	}
 
 	public static class Return extends Stmt {

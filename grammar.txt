@@ -9,7 +9,7 @@ varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 funDecl        → "proc" proc
 classDecl      → "class" IDENTIFIER "{" proc* "}" ;
 
-proc           → IDENTIFIER "(" funParams? ")" block ;
+proc           → "static"? IDENTIFIER "(" funParams? ")" block ;
 funParams      → IDENTIFIER ("," IDENTIFIER)* ;
 
 statement      → exprStmt

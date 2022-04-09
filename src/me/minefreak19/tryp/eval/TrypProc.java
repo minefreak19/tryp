@@ -5,11 +5,15 @@ import me.minefreak19.tryp.tree.Stmt;
 
 import java.util.List;
 
-public record TrypProc(Stmt.ProcDecl declaration, Environment closure) implements TrypCallable {
+public record TrypProc(Stmt.ProcDecl declaration, Environment closure, boolean isStatic) implements TrypCallable {
+	public TrypProc(Stmt.ProcDecl declaration, Environment closure) {
+		this(declaration, closure, declaration.isStatic);
+	}
+
 	public TrypProc bind(TrypInstance instance) {
 		var env = new Environment(closure);
 		env.define("this", instance);
-		return new TrypProc(declaration, env);
+		return new TrypProc(declaration, env, this.isStatic);
 	}
 
 	@Override

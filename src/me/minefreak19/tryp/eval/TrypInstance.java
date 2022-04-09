@@ -6,8 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TrypInstance {
-	private TrypClass klass;
+	protected TrypClass klass;
 	private final Map<String, Object> fields = new HashMap<>();
+
+	protected TrypInstance() {
+		this(null);
+	}
 
 	public TrypInstance(TrypClass klass) {
 		this.klass = klass;

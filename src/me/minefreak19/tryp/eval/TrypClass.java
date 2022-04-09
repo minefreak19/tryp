@@ -1,14 +1,39 @@
 package me.minefreak19.tryp.eval;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public final class TrypClass implements TrypCallable {
+public final class TrypClass extends TrypInstance implements TrypCallable {
 	private final String name;
 	private final Map<String, TrypProc> methods;
 
 	public TrypClass(String name, Map<String, TrypProc> methods) {
+		{
+			String mName = "$static$" + name;
+//			var mMethods
+//					= methods.entrySet().stream()
+//					.filter(entry -> entry.getValue().isStatic())
+//					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			var mMethods = new HashMap<String, TrypProc>();
+			for (var entry : methods.entrySet()) {
+				if (entry.getValue().isStatic()) {
+					methods.remove(entry.getKey());
+					mMethods.put(entry.getKey(), entry.getValue());
+				}
+			}
+
+			this.klass = new TrypClass(mName, mMethods, 0);
+		}
+
+		this.name = name;
+		this.methods = methods;
+	}
+
+	// Avoids the metaclass logic of the public constructor.
+	@SuppressWarnings("unused")
+	private TrypClass(String name, Map<String, TrypProc> methods, int dummy) {
 		this.name = name;
 		this.methods = methods;
 	}

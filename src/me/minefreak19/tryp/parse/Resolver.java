@@ -280,6 +280,14 @@ public final class Resolver
 
 	@Override
 	public Void visitProcDeclStmt(Stmt.ProcDecl stmt) {
+		if (stmt.isStatic) {
+			// If we were in a class, this would have been handled by visitClassStmt.
+			// Since we're here, we can safely assume that we're not in a class,
+			//  without checking the currentClass field.
+			new CompilerError()
+					.error(stmt.name.getLoc(), "Can't have static methods outside class")
+					.report();
+		}
 		declare(stmt.name);
 		define(stmt.name);
 
