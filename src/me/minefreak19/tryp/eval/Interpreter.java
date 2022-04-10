@@ -83,7 +83,7 @@ public class Interpreter
 	}
 
 	private void defineNatives() {
-		globals.define("print", new TrypCallable() {
+		globals.define("println", new TrypCallable() {
 			@Override
 			public int arity() {
 				return 1;
@@ -92,6 +92,24 @@ public class Interpreter
 			@Override
 			public Object call(Interpreter interpreter, List<Object> args) {
 				System.out.println(Interpreter.toString(args.get(0)));
+				return null;
+			}
+
+			@Override
+			public String toString() {
+				return "<native>";
+			}
+		});
+
+		globals.define("print", new TrypCallable() {
+			@Override
+			public int arity() {
+				return 1;
+			}
+
+			@Override
+			public Object call(Interpreter interpreter, List<Object> args) {
+				System.out.print(Interpreter.toString(args.get(0)));
 				return null;
 			}
 
@@ -134,7 +152,7 @@ public class Interpreter
 
 					default -> stringify(value);
 				};
-				System.out.println(str);
+				System.out.print(str);
 				return null;
 			}
 
