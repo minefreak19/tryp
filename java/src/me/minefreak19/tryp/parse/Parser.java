@@ -353,7 +353,7 @@ public final class Parser {
 			throw new CompilerError()
 					.error(arrow.getLoc(), "Invalid target for assignment")
 					.report();
-		} else if (match(PLUS_EQUALS, MINUS_EQUALS, STAR_EQUALS, SLASH_EQUALS)) {
+		} else if (match(PLUS_EQUALS, MINUS_EQUALS, STAR_EQUALS, SLASH_EQUALS, PERCENT_EQUALS)) {
 			var op = (OpToken) previous();
 			return shorthandAssignment(expr, op.getValue().shorthandAssignmentFor, op.getLoc());
 		}
@@ -433,7 +433,7 @@ public final class Parser {
 
 	private Expr factor() {
 		Expr expr = unary();
-		while (match(SLASH, STAR)) {
+		while (match(SLASH, STAR, PERCENT)) {
 			var opTok = (OpToken) previous();
 			Expr right = unary();
 			expr = new Expr.Binary(expr, opTok, right);

@@ -19,6 +19,7 @@ public enum Operator {
 	MINUS_EQUALS("-="),
 	STAR_EQUALS("*="),
 	SLASH_EQUALS("/="),
+	PERCENT_EQUALS("%="),
 	GREATER_THAN(">"),
 	LESS_THAN("<"),
 	EQUAL("="),
@@ -27,6 +28,7 @@ public enum Operator {
 	PLUS("+"),
 	SLASH("/"),
 	STAR("*"),
+	PERCENT("%"),
 	OPEN_CURLY("{"),
 	CLOSE_CURLY("}"),
 	OPEN_PAREN("("),
@@ -54,6 +56,7 @@ public enum Operator {
 		MINUS_EQUALS.shorthandAssignmentFor = MINUS;
 		STAR_EQUALS.shorthandAssignmentFor = STAR;
 		SLASH_EQUALS.shorthandAssignmentFor = SLASH;
+		PERCENT_EQUALS.shorthandAssignmentFor = PERCENT;
 	}
 
 	public final String text;

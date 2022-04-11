@@ -263,6 +263,11 @@ public class Interpreter
 				yield (double) left * (double) right;
 			}
 
+			case PERCENT -> {
+				checkNumber(binary.operator, left, right);
+				yield (double) left % (double) right;
+			}
+
 			case GREATER_THAN -> {
 				checkNumber(binary.operator, left, right);
 				yield (double) left > (double) right;
