@@ -1,23 +1,38 @@
 package me.minefreak19.tryp.tree;
 
-import me.minefreak19.tryp.lex.token.*;
+import me.minefreak19.tryp.lex.token.IdentifierToken;
+import me.minefreak19.tryp.lex.token.KeywordToken;
+import me.minefreak19.tryp.lex.token.OpToken;
+import me.minefreak19.tryp.lex.token.Token;
 
-import java.util.*;
+import java.util.List;
 
 public abstract class Expr {
 	public interface Visitor<R> {
 		R visitAssignExpr(Assign expr);
+
 		R visitBinaryExpr(Binary expr);
+
 		R visitCallExpr(Call expr);
+
 		R visitGetExpr(Get expr);
+
 		R visitGroupingExpr(Grouping expr);
+
 		R visitLambdaExpr(Lambda expr);
+
 		R visitLiteralExpr(Literal expr);
+
 		R visitLogicalExpr(Logical expr);
+
 		R visitSetExpr(Set expr);
+
 		R visitSuperExpr(Super expr);
+
 		R visitThisExpr(This expr);
+
 		R visitUnaryExpr(Unary expr);
+
 		R visitVariableExpr(Variable expr);
 	}
 

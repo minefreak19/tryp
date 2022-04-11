@@ -1,18 +1,27 @@
 package me.minefreak19.tryp.tree;
 
-import me.minefreak19.tryp.lex.token.*;
+import me.minefreak19.tryp.lex.token.IdentifierToken;
+import me.minefreak19.tryp.lex.token.Token;
 
-import java.util.*;
+import java.util.List;
 
 public abstract class Stmt {
+	@SuppressWarnings("SameReturnValue")
 	public interface Visitor<R> {
 		R visitBlockStmt(Block stmt);
+
 		R visitClassStmt(Class stmt);
+
 		R visitExpressionStmt(Expression stmt);
+
 		R visitIfStmt(If stmt);
+
 		R visitProcDeclStmt(ProcDecl stmt);
+
 		R visitReturnStmt(Return stmt);
+
 		R visitVarStmt(Var stmt);
+
 		R visitWhileStmt(While stmt);
 	}
 
@@ -140,5 +149,6 @@ public abstract class Stmt {
 		public final Stmt body;
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	public abstract <R> R accept(Visitor<R> visitor);
 }

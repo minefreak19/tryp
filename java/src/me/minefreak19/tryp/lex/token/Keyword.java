@@ -21,7 +21,7 @@ public enum Keyword {
 	SUPER("super"),
 	;
 
-	static Map<String, Keyword> byText;
+	static final Map<String, Keyword> byText;
 
 	static {
 		byText = new HashMap<>();

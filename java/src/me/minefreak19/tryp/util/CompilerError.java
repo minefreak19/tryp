@@ -30,14 +30,6 @@ public class CompilerError {
 				.append(": ");
 	}
 
-	public CompilerError note(FileLocation loc, String note) {
-		messageHeader(loc, "NOTE");
-		this.message
-				.append(note)
-				.append('\n');
-		return this;
-	}
-
 	public CompilerError error(FileLocation loc, String error) {
 		messageHeader(loc, "ERROR");
 		this.message
@@ -75,10 +67,6 @@ public class CompilerError {
 				.append('`')
 				.append('\n');
 		return this;
-	}
-
-	public CompilerError illegalStartOfExpr(Token cause) {
-		return badToken(cause, "Illegal start of expression");
 	}
 
 	public SyntaxException report() {

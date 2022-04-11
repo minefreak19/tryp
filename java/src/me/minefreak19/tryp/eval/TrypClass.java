@@ -13,10 +13,6 @@ public final class TrypClass extends TrypInstance implements TrypCallable {
 	public TrypClass(String name, TrypClass superclass, Map<String, TrypProc> methods) {
 		{
 			String mName = "$static$" + name;
-//			var mMethods
-//					= methods.entrySet().stream()
-//					.filter(entry -> entry.getValue().isStatic())
-//					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			var mMethods = new HashMap<String, TrypProc>();
 			for (var entry : methods.entrySet()) {
 				if (entry.getValue().isStatic()) {

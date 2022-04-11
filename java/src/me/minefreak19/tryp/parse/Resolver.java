@@ -24,7 +24,7 @@ public final class Resolver
 	private static class Var {
 		public boolean defined = false;
 		public boolean used = false;
-		public Token name;
+		public final Token name;
 
 		public Var(boolean defined, boolean used, Token name) {
 			this.defined = defined;

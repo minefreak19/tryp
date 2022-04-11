@@ -289,9 +289,16 @@ public final class Parser {
 	}
 
 	private Expr expression() {
+		return expression(false);
+	}
+
+	private Expr expression(boolean noCompound) {
 		if (match(BACKSLASH)) return lambdaExpr();
 
-		return compound();
+		if (noCompound)
+			return assignment();
+		else
+			return compound();
 	}
 
 	/**
@@ -346,7 +353,6 @@ public final class Parser {
 					.error(arrow.getLoc(), "Invalid target for assignment")
 					.report();
 		}
-
 		return expr;
 	}
 
@@ -511,7 +517,7 @@ public final class Parser {
 						.error(peek().getLoc(), "Function can't have more than 255 arguments")
 						.report();
 			}
-			ret.add(expression());
+			ret.add(expression(true));
 		} while (match(COMMA));
 
 		return ret;
