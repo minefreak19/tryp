@@ -40,7 +40,9 @@ expression     → lambdaExpr
 lambdaExpr     → "\" "(" funParams? ")" "->" block ;
 
 compound       → assignment ( (",") assignment )* ;
-assignment     → ( call "." )? IDENTIFIER "<-" assignment
+assignment     → ( call "." )? IDENTIFIER
+			("<-" | "+=" | "-=" | "*=" | "/=")
+			assignment
                | logical_or ;
 
 logical_or     → logical_and ( "||" logical_and )* ;

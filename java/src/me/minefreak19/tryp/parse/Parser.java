@@ -1,6 +1,7 @@
 package me.minefreak19.tryp.parse;
 
 import me.minefreak19.tryp.SyntaxException;
+import me.minefreak19.tryp.lex.FileLocation;
 import me.minefreak19.tryp.lex.token.*;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
@@ -352,8 +353,27 @@ public final class Parser {
 			throw new CompilerError()
 					.error(arrow.getLoc(), "Invalid target for assignment")
 					.report();
+		} else if (match(PLUS_EQUALS, MINUS_EQUALS, STAR_EQUALS, SLASH_EQUALS)) {
+			var op = (OpToken) previous();
+			return shorthandAssignment(expr, op.getValue().shorthandAssignmentFor, op.getLoc());
 		}
+
 		return expr;
+	}
+
+	private Expr shorthandAssignment(Expr left, Operator op, FileLocation opTokLoc) {
+		Expr right = assignment();
+		if (left instanceof Expr.Variable varExpr) {
+			return new Expr.Assign(varExpr.name,
+					new Expr.Binary(left, new OpToken(opTokLoc, op.text, op), right));
+		} else if (left instanceof Expr.Get get) {
+			return new Expr.Set(get.object, get.name,
+					new Expr.Binary(left, new OpToken(opTokLoc, op.text, op), right));
+		}
+
+		throw new CompilerError()
+				.error(opTokLoc, "Invalid target for operator " + op.text)
+				.report();
 	}
 
 	private Expr logicalOr() {
@@ -549,6 +569,12 @@ public final class Parser {
 
 	private Token peek() {
 		return tokens.get(current);
+	}
+
+	private Token peekAhead() {
+		return tokens.size() > current
+				       ? tokens.get(current)
+				       : null;
 	}
 
 	private boolean atEnd() {
