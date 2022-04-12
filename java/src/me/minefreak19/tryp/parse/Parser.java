@@ -338,8 +338,8 @@ public final class Parser {
 
 	// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
 	private Expr assignment() {
-		// delegate to logicalOr() if there's no `<-` after that
-		Expr expr = logicalOr();
+		// delegate to ternary() if there's no `<-` after that
+		Expr expr = ternary();
 
 		if (match(LEFT_ARROW)) {
 			Token arrow = previous();
@@ -374,6 +374,21 @@ public final class Parser {
 		throw new CompilerError()
 				.error(opTokLoc, "Invalid target for operator " + op.text)
 				.report();
+	}
+
+	private Expr ternary() {
+		Expr condition = logicalOr();
+
+		if (!match(QUESTION)) {
+			// delegate to logicalOr() if no ternary
+			return condition;
+		}
+
+		Expr thenExpr = ternary();
+		expect(COLON);
+		Expr elseExpr = ternary();
+
+		return new Expr.Ternary(condition, thenExpr, elseExpr);
 	}
 
 	private Expr logicalOr() {

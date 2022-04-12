@@ -390,6 +390,13 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitTernaryExpr(Expr.Ternary expr) {
+		return isTruthy(evaluate(expr.condition))
+				       ? evaluate(expr.thenExpr)
+				       : evaluate(expr.elseExpr);
+	}
+
+	@Override
 	public Object visitThisExpr(Expr.This expr) {
 		return lookupVar(expr.kw, expr);
 	}

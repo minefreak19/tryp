@@ -209,6 +209,14 @@ public final class Resolver
 	}
 
 	@Override
+	public Void visitTernaryExpr(Expr.Ternary expr) {
+		resolve(expr.condition);
+		resolve(expr.thenExpr);
+		resolve(expr.elseExpr);
+		return null;
+	}
+
+	@Override
 	public Void visitThisExpr(Expr.This expr) {
 		if (this.currentClass == ClassType.NONE) {
 			new CompilerError()

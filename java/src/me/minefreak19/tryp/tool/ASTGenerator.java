@@ -23,6 +23,7 @@ public class ASTGenerator {
 				// Carrying around a reference to the method being called (super.m())
 				//  is useful because the method needs to be bound to the *current* object
 				"Super    : KeywordToken kw, IdentifierToken method",
+				"Ternary  : Expr condition, Expr thenExpr, Expr elseExpr",
 				"This     : KeywordToken kw",
 				"Unary    : OpToken operator, Expr right",
 				"Variable : Token name"

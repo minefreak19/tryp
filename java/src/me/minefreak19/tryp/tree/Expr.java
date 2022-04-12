@@ -1,38 +1,24 @@
 package me.minefreak19.tryp.tree;
 
-import me.minefreak19.tryp.lex.token.IdentifierToken;
-import me.minefreak19.tryp.lex.token.KeywordToken;
-import me.minefreak19.tryp.lex.token.OpToken;
-import me.minefreak19.tryp.lex.token.Token;
+import me.minefreak19.tryp.lex.token.*;
 
-import java.util.List;
+import java.util.*;
 
 public abstract class Expr {
 	public interface Visitor<R> {
 		R visitAssignExpr(Assign expr);
-
 		R visitBinaryExpr(Binary expr);
-
 		R visitCallExpr(Call expr);
-
 		R visitGetExpr(Get expr);
-
 		R visitGroupingExpr(Grouping expr);
-
 		R visitLambdaExpr(Lambda expr);
-
 		R visitLiteralExpr(Literal expr);
-
 		R visitLogicalExpr(Logical expr);
-
 		R visitSetExpr(Set expr);
-
 		R visitSuperExpr(Super expr);
-
+		R visitTernaryExpr(Ternary expr);
 		R visitThisExpr(This expr);
-
 		R visitUnaryExpr(Unary expr);
-
 		R visitVariableExpr(Variable expr);
 	}
 
@@ -190,6 +176,23 @@ public abstract class Expr {
 
 		public final KeywordToken kw;
 		public final IdentifierToken method;
+	}
+
+	public static class Ternary extends Expr {
+		public Ternary(Expr condition, Expr thenExpr, Expr elseExpr) {
+			this.condition = condition;
+			this.thenExpr = thenExpr;
+			this.elseExpr = elseExpr;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitTernaryExpr(this);
+		}
+
+		public final Expr condition;
+		public final Expr thenExpr;
+		public final Expr elseExpr;
 	}
 
 	public static class This extends Expr {

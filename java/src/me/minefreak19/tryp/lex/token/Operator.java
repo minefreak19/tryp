@@ -37,6 +37,8 @@ public enum Operator {
 	COMMA(","),
 	BACKSLASH("\\"),
 	DOT("."),
+	QUESTION("?"),
+	COLON(":"),
 	;
 
 	private static final Map<String, Operator> byText;
