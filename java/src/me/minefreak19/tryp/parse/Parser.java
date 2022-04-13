@@ -481,8 +481,7 @@ public final class Parser {
 
 				expect(CLOSE_PAREN);
 
-				// TODO: this needs to modify `expr` instead of returning
-				return new Expr.Call(expr, paren, args);
+				expr = new Expr.Call(expr, paren, args);
 			} else if (check(DOT)) {
 				advance();
 				var name = expect(IdentifierToken.class);
