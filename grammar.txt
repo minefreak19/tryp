@@ -19,7 +19,8 @@ statement      → exprStmt
                | ifStmt
                | whileStmt
                | forStmt
-               | returnStmt ;
+               | returnStmt
+			   | includeStmt ;
 
 exprStmt       → expression ";" ;
 block          → "{" declaration* "}" ;
@@ -33,6 +34,7 @@ forStmt        → "for" "("
                  ")" statement
                ;
 returnStmt     → "return" expression? ";" ;
+includeStmt    → "include" STRING ";" ;
 
 expression     → lambdaExpr
                | compound ;

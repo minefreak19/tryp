@@ -19,6 +19,7 @@ public enum Keyword {
 	STATIC("static"),
 	EXTENDS("extends"),
 	SUPER("super"),
+	INCLUDE("include"),
 	;
 
 	static final Map<String, Keyword> byText;

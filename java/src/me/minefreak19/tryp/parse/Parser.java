@@ -2,14 +2,17 @@ package me.minefreak19.tryp.parse;
 
 import me.minefreak19.tryp.SyntaxException;
 import me.minefreak19.tryp.lex.FileLocation;
+import me.minefreak19.tryp.lex.Lexer;
 import me.minefreak19.tryp.lex.token.*;
 import me.minefreak19.tryp.tree.Expr;
 import me.minefreak19.tryp.tree.Stmt;
 import me.minefreak19.tryp.util.CompilerError;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
 import static me.minefreak19.tryp.lex.token.Keyword.*;
 import static me.minefreak19.tryp.lex.token.Operator.*;
@@ -17,10 +20,22 @@ import static me.minefreak19.tryp.lex.token.Operator.*;
 @SuppressWarnings("SameParameterValue")
 public final class Parser {
 	private final List<Token> tokens;
+	private final Set<Path> included;
+	private List<Stmt> statements;
 	private int current;
 
 	public Parser(List<Token> tokens) {
+		this(tokens, new HashSet<>());
+
+		if (!tokens.isEmpty()) {
+			// extract file path out of token location
+			this.included.add(new File(this.tokens.get(0).getLoc().getName()).toPath());
+		}
+	}
+
+	private Parser(List<Token> tokens, Set<Path> included) {
 		this.tokens = tokens;
+		this.included = included;
 		this.current = 0;
 	}
 
@@ -33,7 +48,7 @@ public final class Parser {
 
 			if (peek() instanceof KeywordToken kwTok) {
 				switch (kwTok.getValue()) {
-				case PROC, VAR, FOR, IF, WHILE, RETURN -> {
+				case PROC, VAR, FOR, IF, WHILE, RETURN, INCLUDE -> {
 					return;
 				}
 				}
@@ -44,9 +59,10 @@ public final class Parser {
 	}
 
 	public List<Stmt> parse() {
-		var statements = new ArrayList<Stmt>();
+		statements = new ArrayList<>();
 		while (!atEnd()) {
-			statements.add(declaration());
+			var decl = declaration();
+			if (decl != null) statements.add(decl);
 		}
 
 		return statements;
@@ -57,6 +73,10 @@ public final class Parser {
 			if (match(VAR)) return varDecl();
 			if (match(PROC)) return procDecl();
 			if (match(CLASS)) return classDecl();
+			if (match(INCLUDE)) {
+				includeDecl();
+				return null;
+			}
 
 			return statement();
 		} catch (SyntaxException exception) {
@@ -281,6 +301,39 @@ public final class Parser {
 
 		expect(SEMICOLON);
 		return new Stmt.Return(kw, value);
+	}
+
+	/**
+	 * Including a file only has side effects.
+	 * <p>
+	 * The statements of the other file's program are
+	 * appended to the current parser's program,
+	 */
+	private void includeDecl() {
+		var strLit = expect(StringToken.class);
+		expect(SEMICOLON);
+		String fileName = strLit.getValue();
+		var file = new File(fileName);
+
+		try {
+			if (this.included.contains(file.toPath())) {
+				throw new CompilerError()
+						.error(strLit.getLoc(),
+								"Already included file `" + strLit.getValue() + "`")
+						.report();
+			}
+			var lexer = new Lexer(Files.readString(file.toPath()), FileLocation.from(file));
+			var tokens = lexer.tokens();
+			this.included.add(file.toPath());
+			var parser = new Parser(tokens, this.included);
+
+			var otherFile = parser.parse();
+			statements.addAll(otherFile);
+		} catch (IOException e) {
+			throw new CompilerError()
+					.error(strLit.getLoc(), e.getLocalizedMessage())
+					.report();
+		}
 	}
 
 	private Stmt expressionStatement() {
