@@ -14,6 +14,7 @@ public class ASTGenerator {
 				"Assign   : Token name, Expr value",
 				"Binary   : Expr left, OpToken operator, Expr right",
 				"Call     : Expr callee, OpToken paren, List<Expr> args",
+				"Compound : List<Expr> exprs",
 				"Get      : Expr object, IdentifierToken name",
 				"Grouping : Expr expression",
 				"Lambda   : OpToken lambda, List<Token> params, List<Stmt> body",

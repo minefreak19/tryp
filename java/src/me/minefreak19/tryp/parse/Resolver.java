@@ -149,6 +149,12 @@ public final class Resolver
 	}
 
 	@Override
+	public Void visitCompoundExpr(Expr.Compound expr) {
+		expr.exprs.forEach(this::resolve);
+		return null;
+	}
+
+	@Override
 	public Void visitGetExpr(Expr.Get expr) {
 		resolve(expr.object);
 		return null;

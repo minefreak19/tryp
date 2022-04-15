@@ -327,13 +327,17 @@ public final class Parser {
 
 	private Expr compound() {
 		Expr expr = assignment();
-		while (match(COMMA)) {
-			var opTok = (OpToken) previous();
-			Expr right = assignment();
-			expr = new Expr.Binary(expr, opTok, right);
-		}
 
-		return expr;
+		if (!check(COMMA)) return expr;
+
+		var exprs = new ArrayList<Expr>();
+		while (match(COMMA)) {
+			exprs.add(expr);
+			expr = assignment();
+		}
+		exprs.add(expr);
+
+		return new Expr.Compound(exprs);
 	}
 
 	// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax

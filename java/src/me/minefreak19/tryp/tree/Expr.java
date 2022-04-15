@@ -9,6 +9,7 @@ public abstract class Expr {
 		R visitAssignExpr(Assign expr);
 		R visitBinaryExpr(Binary expr);
 		R visitCallExpr(Call expr);
+		R visitCompoundExpr(Compound expr);
 		R visitGetExpr(Get expr);
 		R visitGroupingExpr(Grouping expr);
 		R visitLambdaExpr(Lambda expr);
@@ -69,6 +70,19 @@ public abstract class Expr {
 		public final Expr callee;
 		public final OpToken paren;
 		public final List<Expr> args;
+	}
+
+	public static class Compound extends Expr {
+		public Compound(List<Expr> exprs) {
+			this.exprs = exprs;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitCompoundExpr(this);
+		}
+
+		public final List<Expr> exprs;
 	}
 
 	public static class Get extends Expr {

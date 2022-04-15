@@ -315,6 +315,15 @@ public class Interpreter
 	}
 
 	@Override
+	public Object visitCompoundExpr(Expr.Compound expr) {
+		for (int i = 0; i < expr.exprs.size() - 1; i++) {
+			evaluate(expr.exprs.get(i));
+		}
+
+		return evaluate(expr.exprs.get(expr.exprs.size() - 1));
+	}
+
+	@Override
 	public Object visitGetExpr(Expr.Get expr) {
 		Object object = evaluate(expr.object);
 		if (object instanceof TrypInstance instance) {
