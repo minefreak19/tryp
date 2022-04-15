@@ -4,22 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum Keyword {
-	PROC("proc"),
-	IF("if"),
-	ELSE("else"),
-	VAR("var"),
-	TRUE("true"),
-	FALSE("false"),
-	NIL("nil"),
-	WHILE("while"),
-	RETURN("return"),
-	FOR("for"),
 	CLASS("class"),
-	THIS("this"),
-	STATIC("static"),
+	ELSE("else"),
 	EXTENDS("extends"),
-	SUPER("super"),
+	FALSE("false"),
+	FOR("for"),
+	IF("if"),
 	INCLUDE("include"),
+	NIL("nil"),
+	PROC("proc"),
+	RETURN("return"),
+	STATIC("static"),
+	SUPER("super"),
+	THIS("this"),
+	TRUE("true"),
+	VAR("var"),
+	WHILE("while"),
 	;
 
 	static final Map<String, Keyword> byText;
