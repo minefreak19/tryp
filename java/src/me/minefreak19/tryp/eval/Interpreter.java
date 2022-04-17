@@ -1,5 +1,6 @@
 package me.minefreak19.tryp.eval;
 
+import me.minefreak19.tryp.Tryp;
 import me.minefreak19.tryp.lex.token.IdentifierToken;
 import me.minefreak19.tryp.lex.token.KeywordToken;
 import me.minefreak19.tryp.lex.token.OpToken;
@@ -15,7 +16,6 @@ import java.util.Scanner;
 public class Interpreter
 		implements Expr.Visitor<Object>,
 				           Stmt.Visitor<Void> {
-	private boolean hadError = false;
 	private final Environment globals = new Environment();
 	private Environment environment = globals;
 
@@ -185,7 +185,7 @@ public class Interpreter
 			}
 		} catch (RuntimeError err) {
 			System.err.println(err.getLocalizedMessage());
-			hadError = true;
+			Tryp.hadError = true;
 		}
 	}
 
@@ -534,13 +534,5 @@ public class Interpreter
 			execute(stmt.body);
 		}
 		return null;
-	}
-
-	public boolean hadError() {
-		return hadError;
-	}
-
-	public Environment getEnvironment() {
-		return this.environment;
 	}
 }
