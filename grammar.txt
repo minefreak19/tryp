@@ -43,7 +43,7 @@ lambdaExpr     → "\" "(" funParams? ")" "->" block ;
 
 compound       → assignment ( (",") assignment )* ;
 assignment     → ( call "." )? IDENTIFIER
-			("<-" | "+=" | "-=" | "*=" | "/=")
+			("=" | "+=" | "-=" | "*=" | "/=")
 			assignment
                | ternary ;
 
