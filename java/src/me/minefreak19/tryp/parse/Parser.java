@@ -398,7 +398,7 @@ public final class Parser {
 		// delegate to ternary() if there's no `<-` after that
 		Expr expr = ternary();
 
-		if (match(LEFT_ARROW)) {
+		if (match(EQUAL)) {
 			Token arrow = previous();
 			Expr value = assignment();
 			if (expr instanceof Expr.Variable varExpr) {
