@@ -10,6 +10,7 @@ import me.minefreak19.tryp.tree.Stmt;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Interpreter
 		implements Expr.Visitor<Object>,
@@ -17,6 +18,8 @@ public class Interpreter
 	private boolean hadError = false;
 	private final Environment globals = new Environment();
 	private Environment environment = globals;
+
+	private final Scanner scIn = new Scanner(System.in);
 
 	private final Map<Expr, Integer> localVarDepths = new HashMap<>();
 
@@ -159,6 +162,18 @@ public class Interpreter
 			@Override
 			public String toString() {
 				return "<native>";
+			}
+		});
+
+		globals.define("readLine", new TrypCallable() {
+			@Override
+			public int arity() {
+				return 0;
+			}
+
+			@Override
+			public Object call(Interpreter interpreter, List<Object> args) {
+				return scIn.nextLine();
 			}
 		});
 	}
