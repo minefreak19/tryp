@@ -78,7 +78,7 @@ public class Interpreter
 		return stringify(value);
 	}
 
-	public Interpreter() {
+	{
 		defineNatives();
 	}
 
